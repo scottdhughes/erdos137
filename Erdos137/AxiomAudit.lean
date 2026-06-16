@@ -4,6 +4,7 @@ import Erdos137.BlockFramework
 import Erdos137.JointFiniteness
 import Erdos137.SmoothRefinement
 import Erdos137.TaoPoint
+import Erdos137.RoughPartStructure
 import Erdos137.SpliceFiniteness
 import Erdos137.QuarticCrude
 import Erdos137.SexticCrude
@@ -89,3 +90,8 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 
 -- Combined four-range splice (CombinedSplice): control panel over all deterministic routes.
 #print axioms Erdos137.abstract_prime_sqfree_high_splice          -- CoversAll4 + prime + sqfree + high ⟹ ¬powerful (premises, standard 3)
+
+-- Term-level rough-part anatomy (RoughPartStructure): purely valuation-theoretic, no analytic input.
+#print axioms Erdos137.smoothPartBelow_mul_roughPartAbove            -- (k-smooth part)·(k-rough part) = m (standard 3)
+#print axioms Erdos137.roughPartAbove_powerful_of_block_powerful     -- F k n powerful ⟹ each term's k-rough part powerful (standard 3)
+#print axioms Erdos137.term_decomposes_smooth_times_powerful_rough   -- term = (k-smooth)·(powerful k-rough) (standard 3)

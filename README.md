@@ -8,7 +8,7 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Ten result modules,
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Eleven result modules,
 plus the shared `Base` layer and `AxiomAudit`.
 
 **Module layering.** `Erdos137/Base.lean` holds the shared `g`-independent foundation (the
@@ -21,8 +21,8 @@ instances, with their public lemmas re-derived as thin wrappers of the generic t
 per-`g` proofs live once, in `BlockFramework`/`Base`).
 
 The **build/dependency order** is `Finiteness → Base → BlockFramework → JointFiniteness →
-SmoothRefinement → TaoPoint → SpliceFiniteness → QuarticCrude → SexticCrude → SquarefreeCapacity →
-CombinedSplice`. The module sections below are ordered
+SmoothRefinement → TaoPoint → RoughPartStructure → SpliceFiniteness → QuarticCrude → SexticCrude →
+SquarefreeCapacity → CombinedSplice`. The module sections below are ordered
 **pedagogically** (the concrete `g = 3, 5` routes first, then the unifying framework that subsumes
 them), which is the reverse of the dependency direction: `BlockFramework`/`Base` are foundational, and
 the concrete routes are their instances. A `(proved)` tag below means "a theorem, not a hypothesis";
@@ -240,6 +240,30 @@ sufficiently many squarefree terms cannot be powerful. This is the deterministic
 squarefree-counting theorem such as Pandey's — it converts "enough squarefree terms in the block" into a
 contradiction with the explicit capacity `(4k)^k`, **modulo** that count, which is not formalized here.
 
+## `Erdos137/RoughPartStructure.lean` — term-level rough-part anatomy
+
+The local anatomy behind Tao's "very bad interval" language, purely valuation-theoretic with **no**
+analytic input (no abc, no radical lower bound, no number-theoretic counting). Split each term `n+i`
+of the block as `n+i = (k-smooth part)·(k-rough part)`, where the *`k`-rough part*
+`RoughPartAbove k (n+i) = ∏_{p ∣ n+i, p ≥ k} p^{v_p(n+i)}` collects exactly the primes `p ≥ k`. The
+claim: **if `F k n` is powerful, then each term's `k`-rough part is itself powerful.** A prime `p ≥ k`
+divides at most one of the `k` block factors (`veryBad_large_prime_sq` in `TaoPoint`), so
+powerfulness of the whole product `F k n` localizes to a single factor and forces `p² ∣ n+i`; this
+pushes every prime in the rough part to valuation `≥ 2`, which is exactly powerfulness of
+`RoughPartAbove k (n+i)`.
+
+| Theorem | Statement |
+|---|---|
+| `smoothPartBelow_mul_roughPartAbove` | `m ≠ 0 → SmoothPartBelow k m · RoughPartAbove k m = m` (the smooth/rough split) |
+| `roughPartAbove_powerful_of_block_powerful` | `1 ≤ n → Powerful (F k n) → i < k → Powerful (RoughPartAbove k (n+i))` |
+| `term_decomposes_smooth_times_powerful_rough` | each term `= (k-smooth part)·(powerful k-rough part)`: the split **and** rough-powerfulness together |
+
+Here `SmoothPartBelow k m = ∏_{p ∣ m, p < k} p^{v_p(m)}` and `RoughPartAbove k m = ∏_{p ∣ m, p ≥ k} p^{v_p(m)}`,
+so `SmoothPartBelow k m · RoughPartAbove k m = m`. This is the broader structural reason behind the
+squarefree-capacity obstruction: a **squarefree** term's `k`-rough part is simultaneously squarefree
+and powerful, hence forced to equal `1` — i.e. a squarefree term in a powerful block has no prime
+factor `p ≥ k`, which is precisely `sqfree_term_no_large_prime`.
+
 ## `Erdos137/CombinedSplice.lean` — the combined four-range splice
 
 A single "control panel" unifying the three deterministic non-powerfulness routes, parametric in three
@@ -269,7 +293,9 @@ Lean assumes none of them.
   `crude_g_finiteness`, and the sharp instances `not_powerful_of_large_g4` / `g4_crude_finiteness`
   (`k^4`) and `not_powerful_of_large_g6` / `g6_crude_finiteness` (`k^3`)), the
   abstract range-splice template (`abstract_splice_no_counterexamples`), the elementary
-  very-bad-interval lemmas (`TaoPoint`), the deterministic squarefree-capacity reduction
+  very-bad-interval lemmas (`TaoPoint`), the term-level rough-part structure
+  (`roughPartAbove_powerful_of_block_powerful`: a powerful block forces each term's `k`-rough part to
+  be powerful), the deterministic squarefree-capacity reduction
   (`powerful_sqfree_product_dvd_smooth_capacity`, `not_powerful_of_sqfree_count_beats_fourk`), the
   combined four-range splice (`abstract_prime_sqfree_high_splice`), and all the finiteness deductions.
   `Erdos137/AxiomAudit.lean` prints the footprint of every theorem above.
