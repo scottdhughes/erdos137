@@ -95,3 +95,5 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.smoothPartBelow_mul_roughPartAbove            -- (k-smooth part)·(k-rough part) = m (standard 3)
 #print axioms Erdos137.roughPartAbove_powerful_of_block_powerful     -- F k n powerful ⟹ each term's k-rough part powerful (standard 3)
 #print axioms Erdos137.term_decomposes_smooth_times_powerful_rough   -- term = (k-smooth)·(powerful k-rough) (standard 3)
+#print axioms Erdos137.powerful_dvd_squarefree_eq_one                 -- nonzero powerful divisor of squarefree = 1 (standard 3)
+#print axioms Erdos137.roughPartAbove_eq_one_of_squarefree_term       -- powerful block + squarefree term ⟹ k-rough part = 1 (standard 3)

@@ -257,12 +257,14 @@ pushes every prime in the rough part to valuation `≥ 2`, which is exactly powe
 | `smoothPartBelow_mul_roughPartAbove` | `m ≠ 0 → SmoothPartBelow k m · RoughPartAbove k m = m` (the smooth/rough split) |
 | `roughPartAbove_powerful_of_block_powerful` | `1 ≤ n → Powerful (F k n) → i < k → Powerful (RoughPartAbove k (n+i))` |
 | `term_decomposes_smooth_times_powerful_rough` | each term `= (k-smooth part)·(powerful k-rough part)`: the split **and** rough-powerfulness together |
+| `roughPartAbove_eq_one_of_squarefree_term` | powerful block + squarefree term `n+i` ⟹ its `k`-rough part is `1` |
 
 Here `SmoothPartBelow k m = ∏_{p ∣ m, p < k} p^{v_p(m)}` and `RoughPartAbove k m = ∏_{p ∣ m, p ≥ k} p^{v_p(m)}`,
-so `SmoothPartBelow k m · RoughPartAbove k m = m`. This is the broader structural reason behind the
-squarefree-capacity obstruction: a **squarefree** term's `k`-rough part is simultaneously squarefree
-and powerful, hence forced to equal `1` — i.e. a squarefree term in a powerful block has no prime
-factor `p ≥ k`, which is precisely `sqfree_term_no_large_prime`.
+so `SmoothPartBelow k m · RoughPartAbove k m = m`. This also **formalizes** the structural reason behind
+the squarefree-capacity obstruction: if a term is squarefree, its `k`-rough part is both powerful and a
+divisor of a squarefree number, hence equal to `1` (`roughPartAbove_eq_one_of_squarefree_term`, via the
+reusable helper `powerful_dvd_squarefree_eq_one`) — logically stronger than, and an alternate route to,
+`sqfree_term_no_large_prime`.
 
 ## `Erdos137/CombinedSplice.lean` — the combined four-range splice
 

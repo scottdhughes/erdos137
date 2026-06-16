@@ -125,5 +125,45 @@ theorem term_decomposes_smooth_times_powerful_rough {k n i : ℕ}
   exact ⟨smoothPartBelow_mul_roughPartAbove (k := k) hterm_ne,
     roughPartAbove_powerful_of_block_powerful hn hPow hi⟩
 
+/-! ## Squarefree terms have trivial rough part -/
+
+/-- A nonzero powerful divisor of a nonzero squarefree number is `1`.
+A small reusable helper: if `d ∣ m`, `m` is squarefree, and `d` is powerful, then every prime
+valuation of `d` is both `≥ 2` if nonzero (powerfulness) and `≤ 1` (since `d ∣ m` squarefree), so all
+valuations of `d` vanish. -/
+lemma powerful_dvd_squarefree_eq_one {d m : ℕ}
+    (hdne : d ≠ 0) (hmne : m ≠ 0) (hdvd : d ∣ m) (hsq : Squarefree m) (hPow : Powerful d) :
+    d = 1 := by
+  apply Nat.eq_of_factorization_eq hdne (by decide : (1 : ℕ) ≠ 0)
+  intro p
+  have hzero : d.factorization p = 0 := by
+    by_cases hp : p.Prime
+    · by_contra hnonzero
+      have hpos : 1 ≤ d.factorization p := by omega
+      have hpdvd : p ∣ d := by
+        have hp1 : p ^ 1 ∣ d := (Nat.Prime.pow_dvd_iff_le_factorization hp hdne).mpr hpos
+        simpa [pow_one] using hp1
+      have hp2d : p ^ 2 ∣ d := hPow p hp hpdvd
+      have hge2 : 2 ≤ d.factorization p :=
+        (Nat.Prime.pow_dvd_iff_le_factorization hp hdne).mp hp2d
+      have hd_le_m : d.factorization p ≤ m.factorization p :=
+        (Nat.factorization_le_iff_dvd hdne hmne).mpr hdvd p
+      have hm_le1 : m.factorization p ≤ 1 := Squarefree.natFactorization_le_one p hsq
+      omega
+    · exact Nat.factorization_eq_zero_of_not_prime d hp
+  simpa using hzero
+
+/-- **Squarefree term corollary.** In a powerful block, the `k`-rough part of a squarefree term is
+trivial: if `F k n` is powerful and `n+i` is squarefree, then `n+i` has no prime factor `p ≥ k`, so
+all of its prime support lies below `k`. -/
+theorem roughPartAbove_eq_one_of_squarefree_term {k n i : ℕ}
+    (hn : 1 ≤ n) (hPow : Powerful (F k n)) (hi : i < k) (hsq : Squarefree (n + i)) :
+    RoughPartAbove k (n + i) = 1 := by
+  have hterm_ne : n + i ≠ 0 := by omega
+  exact powerful_dvd_squarefree_eq_one
+    (roughPartAbove_ne_zero k (n + i)) hterm_ne
+    (roughPartAbove_dvd_self (k := k) hterm_ne) hsq
+    (roughPartAbove_powerful_of_block_powerful hn hPow hi)
+
 end -- noncomputable section
 end Erdos137
