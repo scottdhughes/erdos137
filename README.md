@@ -19,6 +19,13 @@ on top of it. The two concrete routes below are then **literal instances**: `Joi
 `W5` as the `g = 5` instances, with their public lemmas re-derived as thin wrappers of the generic
 theorems (so the triple/quintic proofs live once, in `BlockFramework`/`Base`).
 
+The **build/dependency order** is `Finiteness → Base → BlockFramework → JointFiniteness →
+SmoothRefinement → TaoPoint → SpliceFiniteness → QuarticCrude`. The module sections below are ordered
+**pedagogically** (the concrete `g = 3, 5` routes first, then the unifying framework that subsumes
+them), which is the reverse of the dependency direction: `BlockFramework`/`Base` are foundational, and
+the concrete routes are their instances. A `(proved)` tag below means "a theorem, not a hypothesis";
+for the `g = 3, 5` instance modules the proof itself lives upstream in `BlockFramework`/`Base`.
+
 ## `Erdos137/Finiteness.lean` — per-fixed-`k` finiteness (Granville–Langevin route)
 
 Under `RadLB k` (the abc-conditional radical bound `rad(F(k,n)) ≫ n^{k-1-ε}`, taken as a
@@ -35,7 +42,10 @@ hypothesis), `F(k,n)` is powerful for only finitely many `n`, for each fixed `k 
 
 The triple tiling of `F` and its radical-of-product decomposition, with the cross-block prime
 **overlap proved** to satisfy `W ≤ k^k` (via `W ∣ k!`, Legendre — `W_le_pow`). The only hypothesis
-is `BlockRadLB`, the abc block radical bound `(F k n)^{2/3} ≤ ∏ rad over triples`.
+is `BlockRadLB`, the abc block radical bound `(F k n)^{2/3} ≤ ∏ rad over triples`. Here `B`, `overlap`,
+`W` are the `g = 3` instances `Bg 3`, `overlapg 3`, `Wg 3`, and `W_le_pow`/`rad_triples_decomp`/
+`not_powerful_of_large` are thin wrappers of `BlockFramework`'s `Wg_le_pow`/`rad_blocksg_decomp`/
+`not_powerful_crude_g` (the proofs live there).
 
 | Theorem | Statement |
 |---|---|
@@ -47,14 +57,16 @@ is `BlockRadLB`, the abc block radical bound `(F k n)^{2/3} ≤ ∏ rad over tri
 ## `Erdos137/SmoothRefinement.lean` — the smooth-part refinement, sharpened to `n > k^{3+o(1)}`
 
 The crude `rad(F)² ≤ F` is wasteful: the `k`-smooth part `S = ∏_{p<k} p^{v_p(F)}` of a powerful
-`F` is itself very powerful (`S ≥ (k!)^{1-o(1)}`, while `rad(S) ≤ ∏_{p<k} p`). This gives the
-**proved** refinement `rad(F)² · L ≤ F · P²` (`P` = primorial of `k`, `L = ∏_{p<k} p^{⌊k/p⌋}`),
-i.e. `rad(F)² ≤ (P²/L)·F`.
+`F` is itself very powerful (`S ≥ (k!)^{1-o(1)}`, while `rad(S) ≤ ∏_{p<k} p`). This yields the
+refinement `rad(F)² · L ≤ F · P²` (`P` = primorial of `k`, `L = ∏_{p<k} p^{⌊k/p⌋}`), i.e.
+`rad(F)² ≤ (P²/L)·F` — the lemma `smooth_refinement` and the `P`, `L` definitions live in `Base`
+(they are `g`-independent). **This module** is the `g = 3` application: it combines that refinement
+with the triple route to sharpen the threshold.
 
 | Theorem | Statement |
 |---|---|
-| `smooth_refinement` | powerful `F` ⟹ `rad(F k n)² · L k ≤ F k n · P k²` (proved) |
-| `master_ineq` | `BlockRadLB` ⟹ `n^k · L^3 ≤ (k^{2k})^3 · P^6` (the crude `n^k ≤ k^{6k}` plus the `L^3` smooth gain) |
+| `smooth_refinement` (in `Base`) | powerful `F` ⟹ `rad(F k n)² · L k ≤ F k n · P k²` (proved) |
+| `master_ineq` | `BlockRadLB` ⟹ `n^k · L^3 ≤ (k^{2k})^3 · P^6` (the `g = 3` instance of `master_ineq_g`) |
 | `not_powerful_of_large'` | `BlockRadLB → 3 ≤ k → (k^{2k})^3·P^6 < n^k·L^3 → ¬ Powerful (F k n)` |
 | `not_powerful_finite'` | per-`k` finiteness via the sharpened threshold |
 
@@ -93,7 +105,10 @@ outputs. The single analytic input is `BlockRadLB5`, the tail-absorbed quintic b
 `k ≥ 5`). Separately, `abstract_splice_no_counterexamples` is a range-splice **template**: parametric
 in `Mid`/`High` predicates, it concludes `¬ Powerful (F k n)` from a `CoversAll` decomposition, a
 **ranged** prime-in-block input on `Mid`, and a non-powerfulness input on `High` — keeping
-Baker–Harman–Pintz, Mertens, and the exact exponents strictly external.
+Baker–Harman–Pintz, Mertens, and the exact exponents strictly external. As in the triple route, `B5`,
+`overlap5`, `W5` are the `g = 5` instances `Bg 5`, `overlapg 5`, `Wg 5`, and `W5_le_pow`/`master_ineq5`/
+`g5_finiteness` are thin wrappers of `BlockFramework`'s generic theorems; the abstract splice machine is
+unique to this module.
 
 | Theorem | Statement |
 |---|---|
