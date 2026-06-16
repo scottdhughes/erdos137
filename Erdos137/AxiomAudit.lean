@@ -1,5 +1,6 @@
 import Erdos137.Finiteness
 import Erdos137.JointFiniteness
+import Erdos137.SmoothRefinement
 
 /-!
 # Axiom audit
@@ -21,5 +22,14 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.W_dvd_factorial                     -- W ∣ k! (Legendre)
 #print axioms Erdos137.W_le_pow                            -- overlap bound W ≤ k^k (proved)
 #print axioms Erdos137.pow_le_F                            -- n^k ≤ F k n (proved)
-#print axioms Erdos137.not_powerful_of_large              -- HEADLINE: BlockRadLB → n>k^6 → ¬powerful
-#print axioms Erdos137.not_powerful_finite                -- per-k finiteness
+#print axioms Erdos137.not_powerful_of_large              -- BlockRadLB → n>k^6 → ¬powerful (crude route)
+#print axioms Erdos137.not_powerful_finite                -- per-k finiteness (crude route)
+
+-- Smooth-part radical refinement (this file): sharpened threshold.
+#print axioms Erdos137.P_le_4_pow                          -- P k ≤ 4^k (primorial; standard 3)
+#print axioms Erdos137.div_le_factorization_F             -- ⌊k/p⌋ ≤ v_p(F k n) (standard 3)
+#print axioms Erdos137.L_dvd_F                             -- L k ∣ F k n (Legendre; standard 3)
+#print axioms Erdos137.smooth_refinement                   -- rad(F)²·L ≤ F·P² (standard 3)
+#print axioms Erdos137.master_ineq                         -- n^k·L³ ≤ (k^{2k})³·P^6 (BlockRadLB)
+#print axioms Erdos137.not_powerful_of_large'             -- HEADLINE': BlockRadLB → (k^{2k})³·P^6 < n^k·L³ → ¬powerful
+#print axioms Erdos137.not_powerful_finite'               -- per-k finiteness (smooth-refined route)

@@ -1,40 +1,70 @@
-# Erdős Problem #137: powerful products of consecutive integers (conditional finiteness)
+# Erdős Problem #137: powerful products of consecutive integers
 
-A short Lean 4 / Mathlib formalization for Erdős Problem #137 (see erdosproblems.com/137).
+Lean 4 / Mathlib formalization for Erdős Problem #137 (see erdosproblems.com/137), by Scott D. Hughes.
 
-Erdős Problem #137 (Erdős-Selfridge) asks whether the product of `k ≥ 3` consecutive
-positive integers `F(k,n) = n(n+1)...(n+k-1)` can ever be **powerful** (a number `N`
-with `p ∣ N ⟹ p² ∣ N`). It is open.
+A number `N` is **powerful** if `p ∣ N ⟹ p² ∣ N`. Erdős Problem #137 (Erdős–Selfridge) asks
+whether the product of `k ≥ 3` consecutive integers `F(k,n) = n(n+1)⋯(n+k-1)` can be powerful for
+infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is **open**.
 
-## What is formalized
+This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
+genuine abc input as a single explicit hypothesis and proving everything else outright (zero
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Three result modules:
 
-Under the **Granville-Langevin radical lower bound** `RadLB k` (for squarefree
-`g ∈ ℤ[x]`, the abc conjecture gives `rad(g(n)) ≫ n^{deg g - 1 - ε}`, hence
-`rad(F(k,n)) ≫ n^{k-1-ε}`), the product `F(k,n)` is powerful for only finitely many `n`,
-for each fixed `k ≥ 3`. `RadLB` is taken as an **explicit hypothesis**; the abc-conditional
-radical bound itself is *not* formalized here.
+## `Erdos137/Finiteness.lean` — per-fixed-`k` finiteness (Granville–Langevin route)
+
+Under `RadLB k` (the abc-conditional radical bound `rad(F(k,n)) ≫ n^{k-1-ε}`, taken as a
+hypothesis), `F(k,n)` is powerful for only finitely many `n`, for each fixed `k ≥ 3`.
 
 | Theorem | Statement |
 |---|---|
-| `lemma_star` | unconditional: `rad m ^ 2 * B2 m ≤ m ^ 2` |
+| `lemma_star` | unconditional `rad m ^ 2 * B2 m ≤ m ^ 2` |
 | `powerful_rad_sq_le` | a powerful `N ≠ 0` satisfies `rad N ^ 2 ≤ N` |
-| `erdos137_eventually_not_powerful` | `k ≥ 3`, `RadLB k` ⟹ `F k n` is not powerful for all large `n` |
-| `erdos137_finite` | `k ≥ 3`, `RadLB k` ⟹ `{n ≥ 1 : F k n is powerful}` is finite |
+| `erdos137_eventually_not_powerful` | `k ≥ 3`, `RadLB k` ⟹ `F k n` not powerful for all large `n` |
+| `erdos137_finite` | `k ≥ 3`, `RadLB k` ⟹ `{n ≥ 1 : F k n powerful}` finite |
 
-All with zero `sorry`, no `native_decide`, and standard axioms only
-(`propext`, `Classical.choice`, `Quot.sound`).
+## `Erdos137/JointFiniteness.lean` — the triple-tiling route, threshold `n > k^6`
 
-## Attribution
+The triple tiling of `F` and its radical-of-product decomposition, with the cross-block prime
+**overlap proved** to satisfy `W ≤ k^k` (via `W ∣ k!`, Legendre — `W_le_pow`). The only hypothesis
+is `BlockRadLB`, the abc block radical bound `(F k n)^{2/3} ≤ ∏ rad over triples`.
 
-This is a formalization of a **known** result, not a new theorem. Under abc, the
-finiteness follows from the Granville-Langevin radical lower bound (Langevin; and
-A. Granville, [*ABC allows us to count squarefrees*](https://doi.org/10.1155/S1073792898000592),
-IMRN 1998, no. 19, 991-1009). It is discussed by T. N. Shorey and R. Tijdeman,
-[*Arithmetic properties of blocks of consecutive integers*](https://arxiv.org/abs/1612.05438)
-(Springer, 2016), §8.1, which records `rad(F(k,n)) ≫_k n^{k-1-ε}` under abc, with sharper
-power-free-part bounds due to B. M. M. de Weger and C. E. van de Woestijne,
-[*On the power-free parts of consecutive integers*](https://doi.org/10.4064/aa-90-4-387-395),
-Acta Arith. 90 (1999), 387-395. (For `k = 2` the product is powerful infinitely often.)
+| Theorem | Statement |
+|---|---|
+| `rad_triples_decomp` | `∏_j rad(F 3 (n+3j)) = rad(B k n) · W k n` (proved) |
+| `W_le_pow` | `W k n ≤ k^k` (proved, Legendre) |
+| `not_powerful_of_large` | `BlockRadLB → 3 ≤ k → k^6 < n → ¬ Powerful (F k n)` |
+| `not_powerful_finite` | per-`k` finiteness via the `n > k^6` threshold |
+
+## `Erdos137/SmoothRefinement.lean` — the smooth-part refinement, sharpened to `n > k^{3+o(1)}`
+
+The crude `rad(F)² ≤ F` is wasteful: the `k`-smooth part `S = ∏_{p<k} p^{v_p(F)}` of a powerful
+`F` is itself very powerful (`S ≥ (k!)^{1-o(1)}`, while `rad(S) ≤ ∏_{p<k} p`). This gives the
+**proved** refinement `rad(F)² · L ≤ F · P²` (`P` = primorial of `k`, `L = ∏_{p<k} p^{⌊k/p⌋}`),
+i.e. `rad(F)² ≤ (P²/L)·F`.
+
+| Theorem | Statement |
+|---|---|
+| `smooth_refinement` | powerful `F` ⟹ `rad(F k n)² · L k ≤ F k n · P k²` (proved) |
+| `master_ineq` | `BlockRadLB` ⟹ `n^k · L^3 ≤ (k^{2k})^3 · P^6` (the crude `n^k ≤ k^{6k}` plus the `L^3` smooth gain) |
+| `not_powerful_of_large'` | `BlockRadLB → 3 ≤ k → (k^{2k})^3·P^6 < n^k·L^3 → ¬ Powerful (F k n)` |
+| `not_powerful_finite'` | per-`k` finiteness via the sharpened threshold |
+
+The headline is stated in the **exact, fully-proved integer form** `(k^{2k})^3·P^6 < n^k·L^3`.
+Substituting the Mertens lower bound `log L = k log k − O(k)` (and `P ≤ 4^k`) turns it into
+`n > k^{3+o(1)}`, cubically below the crude `k^6`. That Mertens lower bound on `L` is **not in
+Mathlib and is not formalized here**, so the repository carries the gain in the parametric form and
+the `k^{3+o(1)}` reading is the pen-and-paper consequence.
+
+## What is and is not formalized
+
+- **Proved (standard axioms only):** the radical decompositions, `W ≤ k^k`, the smooth refinement
+  `rad(F)²·L ≤ F·P²`, and all the finiteness deductions. `Erdos137/AxiomAudit.lean` prints the
+  footprint of every theorem above.
+- **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB`.
+  abc itself is not formalized.
+- **Not formalized:** the Mertens lower bound on `L` (so the sharpened threshold is parametric,
+  with `k^{3+o(1)}` as its consequence), and any unconditional input (e.g. Baker–Harman–Pintz,
+  Pandey) used in the accompanying discussion.
 
 ## Verifying
 
@@ -43,8 +73,21 @@ lake exe cache get
 lake build
 ```
 
-Toolchain `leanprover/lean4:v4.28.0`, Mathlib pinned in `lake-manifest.json`. The build
-prints an axiom report (`Erdos137/AxiomAudit.lean`).
+Toolchain `leanprover/lean4:v4.28.0`, Mathlib pinned in `lake-manifest.json`; the build prints the
+axiom report from `Erdos137/AxiomAudit.lean`.
+
+## Attribution / related work
+
+The finiteness under abc is a **known** consequence of the Granville–Langevin radical lower bound
+(Langevin; A. Granville, [*ABC allows us to count squarefrees*](https://doi.org/10.1155/S1073792898000592),
+IMRN 1998), discussed by T. N. Shorey and R. Tijdeman,
+[*Arithmetic properties of blocks of consecutive integers*](https://arxiv.org/abs/1612.05438)
+(2016, §8.1), with sharper power-free-part bounds due to B. M. M. de Weger and C. E. van de
+Woestijne, *On the power-free parts of consecutive integers*, Acta Arith. 90 (1999), 387–395. The
+problem is treated in T. Tao, *Products of consecutive integers with unusual anatomy*,
+[arXiv:2603.27990](https://arxiv.org/abs/2603.27990) (2026), which records that #137 is open. The
+triple-tiling and smooth-refinement contributions here arose from the discussion at
+erdosproblems.com/137.
 
 ## License
 
