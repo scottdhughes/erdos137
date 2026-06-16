@@ -66,8 +66,8 @@ discharged as a premise.
 
 ## What is left open
 
-The unconditional Erdős #137 remains open, as does abc. The `g = 3` triple route gives `n > k^6`;
-the analogous `g = 4` block route gives the threshold `n > k^4`, which together with Pandey's
+The unconditional Erdős #137 remains open, as does abc. The crude `g = 3` triple route gives
+`n > k^6`; the analogous crude `g = 4` block route gives the threshold `n > k^4`, which together with Pandey's
 unconditional squarefree-value count for `n < k^{5+δ}` would give full joint `(n, k)` finiteness.
 Those last two inputs are not formalized here.
 -/
