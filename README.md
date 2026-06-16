@@ -8,7 +8,7 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Eleven result modules,
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Twelve result modules,
 plus the shared `Base` layer and `AxiomAudit`.
 
 **Module layering.** `Erdos137/Base.lean` holds the shared `g`-independent foundation (the
@@ -20,9 +20,9 @@ as the `g = 5` instances, and `QuarticCrude`/`SexticCrude` define `B4`/`B6` etc.
 instances, with their public lemmas re-derived as thin wrappers of the generic theorems (so the
 per-`g` proofs live once, in `BlockFramework`/`Base`).
 
-The **build/dependency order** is `Finiteness → Base → BlockFramework → JointFiniteness →
-SmoothRefinement → TaoPoint → RoughPartStructure → SpliceFiniteness → QuarticCrude → SexticCrude →
-SquarefreeCapacity → CombinedSplice`. The module sections below are ordered
+The **build/dependency order** is `Finiteness → Base → BlockFramework → RefinedOverlap →
+JointFiniteness → SmoothRefinement → TaoPoint → RoughPartStructure → SpliceFiniteness → QuarticCrude
+→ SexticCrude → SquarefreeCapacity → CombinedSplice`. The module sections below are ordered
 **pedagogically** (the concrete `g = 3, 5` routes first, then the unifying framework that subsumes
 them), which is the reverse of the dependency direction: `BlockFramework`/`Base` are foundational, and
 the concrete routes are their instances. A `(proved)` tag below means "a theorem, not a hypothesis";
@@ -239,6 +239,42 @@ to a **counting obstruction**: `n^{count} ≤ SmoothCapacity k = L·P ≤ (4k)^k
 sufficiently many squarefree terms cannot be powerful. This is the deterministic companion to an **external**
 squarefree-counting theorem such as Pandey's — it converts "enough squarefree terms in the block" into a
 contradiction with the explicit capacity `(4k)^k`, **modulo** that count, which is not formalized here.
+
+## `Erdos137/RefinedOverlap.lean` — refined deterministic overlap bound
+
+A **deterministic** sharpening of the universal overlap bound `Wg g k n ≤ k^k` of `BlockFramework`,
+with **no** analytic input (no abc/Langevin constant, no Mertens, no growing-`g` hypothesis). The
+overcount `Wg g k n = ∏_{p ∈ (Bg g k n).primeFactors} p^{overlapg − 1}` has its exponent bounded two
+ways: the interval count `overlapg ≤ ⌊k/p⌋+1` (already in `BlockFramework`, giving `Wg ∣ k!` and
+`Wg ≤ k^k`) and the new number-of-blocks bound `overlapg ≤ ⌊k/g⌋` (there are only `⌊k/g⌋` blocks).
+Taking the `min` of the two caps gives the refined capacity
+
+  `WgRefinedCap g k = ∏_{p ≤ k} p^{min(⌊k/p⌋, ⌊k/g⌋)}`,
+
+and `Wg g k n ∣ WgRefinedCap g k`, hence `Wg g k n ≤ WgRefinedCap g k`. (The product ranges over
+`primesBelow (k+1)`, i.e. `p ≤ k`; including the single boundary prime `p = k` is a deliberate,
+harmless choice that makes the divisibility hold without a separate large-prime lemma.) This improves
+the exact overlap factor from `k^k` toward a finite product with heuristic logarithm
+`k log(k/g) + O(k)` (e.g. `WgRefinedCap 3 12 = 2 494 800` vs `12^12 ≈ 8.9·10^12`).
+
+| Theorem | Statement |
+|---|---|
+| `overlapg_le_numBlocks` | `overlapg g k n p ≤ ⌊k/g⌋` (number-of-blocks bound) |
+| `Wg_dvd_refinedCap` | `1 ≤ g → 1 ≤ n → Wg g k n ∣ WgRefinedCap g k` |
+| `Wg_le_refinedCap` | `1 ≤ g → 1 ≤ n → Wg g k n ≤ WgRefinedCap g k` (size form) |
+| `rad_blocksg_le_refined` | `∏_j rad(F g (n+g·j)) ≤ rad(F k n) · WgRefinedCap g k` (refined decomposition) |
+| `master_ineq_crude_g_refinedOverlap` | `BlockRadLBg g → n^{(g-2)k} ≤ WgRefinedCap g k ^{2g}` (crude master ineq, refined cap) |
+| `master_ineq_g_refinedOverlap` | `BlockRadLBg g → n^{(g-2)k}·L k^g ≤ WgRefinedCap g k^{2g}·P k^{2g}` (smooth master ineq, refined cap) |
+
+**Modest scope — no growing-`g`/uniform-abc claim.** This is a contained deterministic improvement of
+the *overlap factor*, **not** a new exponent claim. The two refined master inequalities are the
+`BlockFramework` originals with `WgRefinedCap g k` substituted for the `k^k` factor; for **fixed** `g`
+they coincide *in scale* with the existing `Mg`/`Mcrude` bounds, so no asymptotic improvement to the
+per-`k` threshold follows. The only place the refinement could matter is the heuristic logarithm
+`k log(k/g)` (vs `k log k` for `k^k`), which would help only a *growing*-`g` strategy — and realizing
+that requires a **uniform-in-`g`** Langevin/abc constant `A_g ≪ g² log g` (discriminant scale). That
+uniform-`A_g` target is an **open pen-and-paper problem, NOT formalized here**; the heuristic logarithm
+and `A_g` bound are remarks only.
 
 ## `Erdos137/RoughPartStructure.lean` — term-level rough-part anatomy
 

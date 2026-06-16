@@ -1,6 +1,7 @@
 import Erdos137.Finiteness
 import Erdos137.Base
 import Erdos137.BlockFramework
+import Erdos137.RefinedOverlap
 import Erdos137.JointFiniteness
 import Erdos137.SmoothRefinement
 import Erdos137.TaoPoint
@@ -75,6 +76,13 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.g4_crude_finiteness                -- BlockRadLB4 → {n | powerful (F k n)} finite (g=4, standard 3)
 #print axioms Erdos137.not_powerful_of_large_g6           -- BlockRadLB6 → k^3 < n → ¬powerful (sharp sextic, standard 3)
 #print axioms Erdos137.g6_crude_finiteness                -- BlockRadLB6 → {n | powerful (F k n)} finite (g=6, standard 3)
+
+-- Refined overlap bound (RefinedOverlap): deterministic, no growing-g claim.
+#print axioms Erdos137.overlapg_le_numBlocks                -- overlapg ≤ ⌊k/g⌋ (number of blocks; standard 3)
+#print axioms Erdos137.Wg_dvd_refinedCap                    -- Wg ∣ ∏_{p≤k} p^{min(⌊k/p⌋,⌊k/g⌋)} (standard 3)
+#print axioms Erdos137.Wg_le_refinedCap                     -- size form Wg ≤ WgRefinedCap (standard 3)
+#print axioms Erdos137.master_ineq_crude_g_refinedOverlap   -- BlockRadLBg → n^{(g-2)k} ≤ WgRefinedCap^{2g} (standard 3)
+#print axioms Erdos137.master_ineq_g_refinedOverlap         -- BlockRadLBg → n^{(g-2)k}·L^g ≤ WgRefinedCap^{2g}·P^{2g} (standard 3)
 
 -- Deterministic squarefree-capacity reduction (SquarefreeCapacity): no Pandey/BHP/Mertens/analysis.
 #print axioms Erdos137.sqfree_term_no_large_prime                  -- powerful + squarefree term ⟹ no prime ≥ k (standard 3)
