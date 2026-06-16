@@ -17,7 +17,8 @@ finitely many `n` (`g4_crude_finiteness`).
 The quartic crude route gives the **fully explicit** threshold `n > k^4`, with no `o(1)` and no
 unformalized Mertens input. This is the complementary high-`n` input for the usual squarefree-counting
 reduction: combined with the low-range prime obstruction and Pandey's unconditional squarefree
-short-interval count below `k ^ {5 + δ}`, it gives the intended joint `(n, k)` finiteness argument
+short-interval count below `k ^ {5 + δ}`, it is the high-`n` part of the intended joint `(n, k)`
+finiteness argument
 (Pandey is NOT formalized here). The crude exponent is `2g/(g-2) = 2 + 4/(g-2)`, so `g = 4` is the
 **first (minimal) block length for which the crude threshold drops below the `k^5` squarefree
 ceiling**, and it gives the clean integer threshold `k^4`. Larger fixed block lengths give still

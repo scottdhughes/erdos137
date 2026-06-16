@@ -14,10 +14,11 @@ plus the shared `Base` layer and `AxiomAudit`.
 **Module layering.** `Erdos137/Base.lean` holds the shared `g`-independent foundation (the
 factorization/radical/Legendre helpers, the primorial `P` and Legendre layer `L`, and the smooth-part
 refinement `rad(F)²·L ≤ F·P²`). `Erdos137/BlockFramework.lean` builds the generic `g`-block argument
-on top of it. The two concrete routes below are then **literal instances**: `JointFiniteness` defines
-`B`, `overlap`, `W` as `Bg 3`, `overlapg 3`, `Wg 3`, and `SpliceFiniteness` defines `B5`, `overlap5`,
-`W5` as the `g = 5` instances, with their public lemmas re-derived as thin wrappers of the generic
-theorems (so the triple/quintic proofs live once, in `BlockFramework`/`Base`).
+on top of it. The concrete route modules below are then **literal instances**: `JointFiniteness` defines
+`B`, `overlap`, `W` as `Bg 3`, `overlapg 3`, `Wg 3`, `SpliceFiniteness` defines `B5`, `overlap5`, `W5`
+as the `g = 5` instances, and `QuarticCrude`/`SexticCrude` define `B4`/`B6` etc. as the `g = 4`/`g = 6`
+instances, with their public lemmas re-derived as thin wrappers of the generic theorems (so the
+per-`g` proofs live once, in `BlockFramework`/`Base`).
 
 The **build/dependency order** is `Finiteness → Base → BlockFramework → JointFiniteness →
 SmoothRefinement → TaoPoint → SpliceFiniteness → QuarticCrude → SexticCrude`. The module sections below are ordered
@@ -186,8 +187,8 @@ gives `k^3` — but require correspondingly higher-degree block radical inputs (
 non-integer `k^{10/3}`). This `n > k^4` bound is the complementary high-`n` input for the usual
 squarefree-counting reduction: combined with the low-range prime obstruction and Pandey's unconditional
 squarefree short-interval count below `k^{5+δ}`
-([arXiv:2401.13981](https://arxiv.org/abs/2401.13981)), it gives the intended joint `(n, k)`
-finiteness argument. Pandey's count is **not** formalized here.
+([arXiv:2401.13981](https://arxiv.org/abs/2401.13981)), it is the high-`n` part of the intended joint
+`(n, k)` finiteness argument. Pandey's count is **not** formalized here.
 
 ## `Erdos137/SexticCrude.lean` — the sextic (`g = 6`) crude route, threshold `n > k^3`
 
