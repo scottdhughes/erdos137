@@ -8,7 +8,7 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Seven result modules,
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Eight result modules,
 plus the shared `Base` layer and `AxiomAudit`.
 
 **Module layering.** `Erdos137/Base.lean` holds the shared `g`-independent foundation (the
@@ -20,7 +20,7 @@ on top of it. The two concrete routes below are then **literal instances**: `Joi
 theorems (so the triple/quintic proofs live once, in `BlockFramework`/`Base`).
 
 The **build/dependency order** is `Finiteness → Base → BlockFramework → JointFiniteness →
-SmoothRefinement → TaoPoint → SpliceFiniteness → QuarticCrude`. The module sections below are ordered
+SmoothRefinement → TaoPoint → SpliceFiniteness → QuarticCrude → SexticCrude`. The module sections below are ordered
 **pedagogically** (the concrete `g = 3, 5` routes first, then the unifying framework that subsumes
 them), which is the reverse of the dependency direction: `BlockFramework`/`Base` are foundational, and
 the concrete routes are their instances. A `(proved)` tag below means "a theorem, not a hypothesis";
@@ -189,6 +189,26 @@ squarefree short-interval count below `k^{5+δ}`
 ([arXiv:2401.13981](https://arxiv.org/abs/2401.13981)), it gives the intended joint `(n, k)`
 finiteness argument. Pandey's count is **not** formalized here.
 
+## `Erdos137/SexticCrude.lean` — the sextic (`g = 6`) crude route, threshold `n > k^3`
+
+The `g = 6` instance of the crude route, the **sharpest clean integer-exponent crude threshold this
+route reaches**. Under `BlockRadLB6` (the `(F k n)^{5/6} ≤ ∏ rad` bound over sextic blocks,
+`blockRadLB6_iff`-bridged to `BlockRadLBg 6`), the crude master inequality reads `n^4 ≤ k^12`, i.e.
+`n ≤ k^3`.
+
+| Theorem | Statement |
+|---|---|
+| `not_powerful_of_large_g6` | `BlockRadLB6 → 6 ≤ k → k^3 < n → ¬ Powerful (F k n)` |
+| `g6_crude_finiteness` | `BlockRadLB6 → 6 ≤ k → {n ≥ 1 : F k n powerful}` finite (all `n ≤ k^3`) |
+
+The crude exponent `2g/(g-2) = 2 + 4/(g-2)` is an integer exactly when `(g-2) ∣ 4`, i.e. precisely for
+`g ∈ {3, 4, 6}` — giving `k^6`, `k^4`, `k^3`. So `g = 6` is the **last (largest) block length with an
+integer crude exponent**, and `k^3` is the sharpest clean integer crude threshold: beyond `g = 6` the
+crude exponent is non-integer and only decreases toward `k^2` as `g → ∞`. The gain over `g = 4` costs a
+higher-degree block radical input (`BlockRadLB6`, with its `g`-dependent abc/Langevin constant — the
+known radical-method ceiling). `k^3` stays below the `k^5` unconditional ceiling, so it too is a valid
+high-`n` input for the squarefree-counting reduction.
+
 ## What is and is not formalized
 
 - **Proved (standard axioms only):** the radical decompositions, the uniform overlap bound
@@ -196,14 +216,15 @@ finiteness argument. Pandey's count is **not** formalized here.
   `rad(F)²·L ≤ F·P²`, the parametric **smooth** master inequality `n^{(g-2)k}·L^g ≤ (k^{2k})^g·P^{2g}`
   (`master_ineq_g`) and the parametric **crude** master inequality `n^{g-2} ≤ k^{2g}`
   (`master_ineq_crude_g`), their per-`k` bounds/finiteness (`powerful_bound_g`, `g_finiteness`,
-  `crude_g_finiteness`, and the sharp quartic `not_powerful_of_large_g4` / `g4_crude_finiteness`), the
+  `crude_g_finiteness`, and the sharp instances `not_powerful_of_large_g4` / `g4_crude_finiteness`
+  (`k^4`) and `not_powerful_of_large_g6` / `g6_crude_finiteness` (`k^3`)), the
   abstract range-splice template (`abstract_splice_no_counterexamples`), the elementary
   very-bad-interval lemmas (`TaoPoint`), and all the finiteness deductions. `Erdos137/AxiomAudit.lean`
   prints the footprint of every theorem above.
 - **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB` /
-  `BlockRadLB4` / `BlockRadLB5` / `BlockRadLBg g` (the block bounds are the normalized, tail-absorbed
-  forms, guarded `4 ≤ k` / `5 ≤ k` resp. `g ≤ k`). abc itself is not formalized; each enters as a
-  premise, so none appears in any axiom footprint.
+  `BlockRadLB4` / `BlockRadLB5` / `BlockRadLB6` / `BlockRadLBg g` (the block bounds are the normalized,
+  tail-absorbed forms, guarded `4 ≤ k` / `5 ≤ k` / `6 ≤ k` resp. `g ≤ k`). abc itself is not formalized;
+  each enters as a premise, so none appears in any axiom footprint.
 - **Not formalized:** the Mertens lower bound on `L` (so the sharpened threshold is parametric,
   with `k^{3+o(1)}` as its consequence); Tao's analytic density theorem and his two-term
   linear-relation extraction; the asymptotic `5/3 < 40/21` range coverage of the quintic splice

@@ -6,4 +6,5 @@ import Erdos137.SmoothRefinement
 import Erdos137.TaoPoint
 import Erdos137.SpliceFiniteness
 import Erdos137.QuarticCrude
+import Erdos137.SexticCrude
 import Erdos137.AxiomAudit

@@ -6,6 +6,7 @@ import Erdos137.SmoothRefinement
 import Erdos137.TaoPoint
 import Erdos137.SpliceFiniteness
 import Erdos137.QuarticCrude
+import Erdos137.SexticCrude
 
 /-!
 # Axiom audit
@@ -69,3 +70,5 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.crude_g_finiteness                 -- BlockRadLBg → {n | powerful (F k n)} finite (crude, generic g)
 #print axioms Erdos137.not_powerful_of_large_g4           -- BlockRadLB4 → k^4 < n → ¬powerful (sharp quartic, standard 3)
 #print axioms Erdos137.g4_crude_finiteness                -- BlockRadLB4 → {n | powerful (F k n)} finite (g=4, standard 3)
+#print axioms Erdos137.not_powerful_of_large_g6           -- BlockRadLB6 → k^3 < n → ¬powerful (sharp sextic, standard 3)
+#print axioms Erdos137.g6_crude_finiteness                -- BlockRadLB6 → {n | powerful (F k n)} finite (g=6, standard 3)
