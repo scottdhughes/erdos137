@@ -8,7 +8,7 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Five result modules:
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Six result modules:
 
 ## `Erdos137/Finiteness.lean` — per-fixed-`k` finiteness (Granville–Langevin route)
 
@@ -103,16 +103,50 @@ range `n > k^{5/3+o(1)}`; since `5/3 < 40/21` the ranges overlap for all large `
 exceptional range and `k = 3,4` handled by the triple route). BHP, Mertens, and that asymptotic
 coverage are **not** formalized — they enter only as the external premises of the splice theorem.
 
+## `Erdos137/BlockFramework.lean` — the parametric `g`-block framework (unifying `g = 3, 5`)
+
+The triple (`g = 3`) and quintic (`g = 5`) routes are the **same** argument at different block lengths.
+This module factors that duplication into one parametric framework: the covered block product
+`Bg g k n`, the overlap count `overlapg`, and the overlap factor `Wg`, with the uniform combinatorial
+bounds `Wg ∣ k!` and `Wg ≤ k^k` (Legendre) proved **once**. Under the normalized tail-absorbed block
+radical hypothesis `BlockRadLBg g` (guarded `g ≤ k`, for the same empty-product consistency reason),
+it proves the smooth-refined **master inequality**, then the threshold and finiteness as corollaries.
+
+| Theorem | Statement |
+|---|---|
+| `Wg_dvd_factorial` / `Wg_le_pow` | `Wg g k n ∣ k!`, `Wg g k n ≤ k^k` (proved, Legendre — the uniform overlap) |
+| `master_ineq_g` | `BlockRadLBg g → 3 ≤ g → g ≤ k → Powerful → n^{(g-2)k}·L^g ≤ (k^{2k})^g·P^{2g}` |
+| `not_powerful_g` | `BlockRadLBg g → Mg g k < n^{(g-2)k}·L^g → ¬ Powerful (F k n)` (sharp threshold) |
+| `powerful_bound_g` | `BlockRadLBg g → Powerful → n ≤ Mg g k = (k^{2k})^g·P^{2g}` (coarse `L ≥ 1` collapse) |
+| `g_finiteness` | `BlockRadLBg g → 3 ≤ g → g ≤ k → {n ≥ 1 : F k n powerful}` finite (per-`k`) |
+
+The master inequality specializes **exactly** to the recorded cases: `g = 3` gives `n^k·L^3 ≤
+(k^{2k})^3·P^6` (the `SmoothRefinement` threshold) and `g = 5` gives `n^{3k}·L^5 ≤ (k^{2k})^5·P^{10}`
+(the `SpliceFiniteness` threshold) — and definitionally `Bg 3 = B`, `Wg 3 = W`, `Bg 5 = B5`,
+`Wg 5 = W5`, `Mg 5 = Msplice`, so the existing concrete code **is** the `g = 3, 5` instance.
+
+There are two exponent readings, and they must not be conflated. With only the proved `L k ≥ 1`, the
+master inequality gives the **coarse** `n > k^{2g/(g-2)+o(1)}`, whose exponent tends to `2` (toward
+`k^{2+ε}`) as `g → ∞`. The `k^{1+ε}` reading appears **only** after the unformalized Mertens lower
+bound `log L = k log k − O(k)`, which sharpens it to `n > k^{g/(g-2)+o(1)}` (exponent `→ 1`). The
+`.Finite` wrapper deliberately uses the coarse explicit `n ≤ Mg g k`; the sharp exponent stays an
+external asymptotic reading. This is not an unconditional improvement either: the abc/Langevin constant
+packaged in `BlockRadLBg g` depends on fixed `g` — the known radical-method ceiling, not a uniform
+growing-`g` theorem.
+
 ## What is and is not formalized
 
-- **Proved (standard axioms only):** the radical decompositions, `W ≤ k^k` and `W5 ≤ k^k`, the
-  smooth refinement `rad(F)²·L ≤ F·P²`, the quintic per-`k` bound (`powerful_bound_g5`,
-  `g5_finiteness`) and the abstract range-splice template (`abstract_splice_no_counterexamples`), the
-  elementary very-bad-interval lemmas (`TaoPoint`), and all the finiteness deductions.
-  `Erdos137/AxiomAudit.lean` prints the footprint of every theorem above.
+- **Proved (standard axioms only):** the radical decompositions, the uniform overlap bound
+  `Wg ≤ k^k` (with `W ≤ k^k`, `W5 ≤ k^k` its `g = 3, 5` instances), the smooth refinement
+  `rad(F)²·L ≤ F·P²`, the parametric master inequality `n^{(g-2)k}·L^g ≤ (k^{2k})^g·P^{2g}`
+  (`master_ineq_g`) and its per-`k` bound/finiteness (`powerful_bound_g`, `g_finiteness`), the abstract
+  range-splice template (`abstract_splice_no_counterexamples`), the elementary very-bad-interval lemmas
+  (`TaoPoint`), and all the finiteness deductions. `Erdos137/AxiomAudit.lean` prints the footprint of
+  every theorem above.
 - **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB` /
-  `BlockRadLB5` (the last is the normalized, tail-absorbed quintic block bound, guarded `5 ≤ k`).
-  abc itself is not formalized.
+  `BlockRadLB5` / `BlockRadLBg g` (the last two are the normalized, tail-absorbed block bounds, guarded
+  `5 ≤ k` resp. `g ≤ k`). abc itself is not formalized; each enters as a premise, so none appears in
+  any axiom footprint.
 - **Not formalized:** the Mertens lower bound on `L` (so the sharpened threshold is parametric,
   with `k^{3+o(1)}` as its consequence); Tao's analytic density theorem and his two-term
   linear-relation extraction; the asymptotic `5/3 < 40/21` range coverage of the quintic splice

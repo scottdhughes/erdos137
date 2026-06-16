@@ -1,6 +1,7 @@
 import Erdos137.Finiteness
 import Erdos137.JointFiniteness
 import Erdos137.SmoothRefinement
+import Erdos137.BlockFramework
 import Erdos137.TaoPoint
 import Erdos137.SpliceFiniteness
 
@@ -51,3 +52,11 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.g5_finiteness                      -- BlockRadLB5 → {n | powerful (F k n)} finite (honest, no BHP)
 #print axioms Erdos137.prime_range_not_powerful           -- PrimeInBlockOnRange Range → Range k n → ¬powerful (premise)
 #print axioms Erdos137.abstract_splice_no_counterexamples -- CoversAll + ranged prime + high input → ¬powerful (premises)
+
+-- Parametric g-block framework (BlockFramework.lean): unifies g=3 and g=5.
+#print axioms Erdos137.Wg_le_pow                          -- overlap bound Wg ≤ k^k (proved, standard 3)
+#print axioms Erdos137.Wg_dvd_factorial                   -- Wg ∣ k! (Legendre; standard 3)
+#print axioms Erdos137.master_ineq_g                      -- n^{(g-2)k}·L^g ≤ (k^{2k})^g·P^{2g} (BlockRadLBg premise)
+#print axioms Erdos137.not_powerful_g                     -- BlockRadLBg → Mg < n^{(g-2)k}·L^g → ¬powerful (standard 3)
+#print axioms Erdos137.powerful_bound_g                   -- BlockRadLBg → powerful → n ≤ Mg g k (standard 3)
+#print axioms Erdos137.g_finiteness                       -- BlockRadLBg → {n | powerful (F k n)} finite (generic g)
