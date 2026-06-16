@@ -8,6 +8,7 @@ import Erdos137.SpliceFiniteness
 import Erdos137.QuarticCrude
 import Erdos137.SexticCrude
 import Erdos137.SquarefreeCapacity
+import Erdos137.CombinedSplice
 
 /-!
 # Axiom audit
@@ -85,3 +86,6 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.not_powerful_of_sqfree_count_beats_fourk    -- count beats (4k)^k ⟹ ¬powerful (standard 3)
 #print axioms Erdos137.not_powerful_of_exists_sqfree_term_large_prime -- ∃ sqfree term w/ prime ≥ k ⟹ ¬powerful (standard 3)
 #print axioms Erdos137.squarefree_range_not_powerful              -- SqfreeCapacityBeatenOnRange → ¬powerful (premise, standard 3)
+
+-- Combined four-range splice (CombinedSplice): control panel over all deterministic routes.
+#print axioms Erdos137.abstract_prime_sqfree_high_splice          -- CoversAll4 + prime + sqfree + high ⟹ ¬powerful (premises, standard 3)

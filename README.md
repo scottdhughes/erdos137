@@ -8,7 +8,7 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Nine result modules,
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Ten result modules,
 plus the shared `Base` layer and `AxiomAudit`.
 
 **Module layering.** `Erdos137/Base.lean` holds the shared `g`-independent foundation (the
@@ -21,7 +21,8 @@ instances, with their public lemmas re-derived as thin wrappers of the generic t
 per-`g` proofs live once, in `BlockFramework`/`Base`).
 
 The **build/dependency order** is `Finiteness → Base → BlockFramework → JointFiniteness →
-SmoothRefinement → TaoPoint → SpliceFiniteness → QuarticCrude → SexticCrude`. The module sections below are ordered
+SmoothRefinement → TaoPoint → SpliceFiniteness → QuarticCrude → SexticCrude → SquarefreeCapacity →
+CombinedSplice`. The module sections below are ordered
 **pedagogically** (the concrete `g = 3, 5` routes first, then the unifying framework that subsumes
 them), which is the reverse of the dependency direction: `BlockFramework`/`Base` are foundational, and
 the concrete routes are their instances. A `(proved)` tag below means "a theorem, not a hypothesis";
@@ -239,6 +240,25 @@ sufficiently many squarefree terms cannot be powerful. This is the deterministic
 squarefree-counting theorem such as Pandey's — it converts "enough squarefree terms in the block" into a
 contradiction with the explicit capacity `(4k)^k`, **modulo** that count, which is not formalized here.
 
+## `Erdos137/CombinedSplice.lean` — the combined four-range splice
+
+A single "control panel" unifying the three deterministic non-powerfulness routes, parametric in three
+range predicates `Mid Sq High`. Given a `CoversAll4` decomposition of every `(k, n)` (with `k ≥ 3`,
+`1 ≤ n`) into `n ≤ k` ∨ `Mid k n` ∨ `Sq k n` ∨ `High k n`, plus a prime-in-block input on `Mid`, a
+squarefree-capacity input on `Sq`, and a non-powerfulness input on `High`, it concludes
+`¬ Powerful (F k n)` for all such `(k, n)`.
+
+| Theorem | Statement |
+|---|---|
+| `abstract_prime_sqfree_high_splice` | `CoversAll4 Mid Sq High` + `PrimeInBlockOnRange Mid` + `SqfreeCapacityBeatenOnRange Sq` + non-powerful on `High` ⟹ `¬ Powerful (F k n)` |
+
+The four cases are discharged by `upper_half_prime_not_powerful` (small `n ≤ k`, Bertrand),
+`prime_range_not_powerful` (`Mid`), `squarefree_range_not_powerful` (`Sq`), and the supplied `High`
+input. This is the four-range analogue of `abstract_splice_no_counterexamples`, with the
+squarefree-count range slotted in. The analytic inputs — Baker–Harman–Pintz on `Mid`, Pandey-type
+squarefree counts on `Sq`, the abc block bound behind `High` — live **entirely** in the premises, so
+Lean assumes none of them.
+
 ## What is and is not formalized
 
 - **Proved (standard axioms only):** the radical decompositions, the uniform overlap bound
@@ -250,7 +270,8 @@ contradiction with the explicit capacity `(4k)^k`, **modulo** that count, which 
   (`k^4`) and `not_powerful_of_large_g6` / `g6_crude_finiteness` (`k^3`)), the
   abstract range-splice template (`abstract_splice_no_counterexamples`), the elementary
   very-bad-interval lemmas (`TaoPoint`), the deterministic squarefree-capacity reduction
-  (`powerful_sqfree_product_dvd_smooth_capacity`), and all the finiteness deductions.
+  (`powerful_sqfree_product_dvd_smooth_capacity`, `not_powerful_of_sqfree_count_beats_fourk`), the
+  combined four-range splice (`abstract_prime_sqfree_high_splice`), and all the finiteness deductions.
   `Erdos137/AxiomAudit.lean` prints the footprint of every theorem above.
 - **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB` /
   `BlockRadLB4` / `BlockRadLB5` / `BlockRadLB6` / `BlockRadLBg g` (the block bounds are the normalized,
