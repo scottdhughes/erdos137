@@ -8,7 +8,7 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Eight result modules,
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Nine result modules,
 plus the shared `Base` layer and `AxiomAudit`.
 
 **Module layering.** `Erdos137/Base.lean` holds the shared `g`-independent foundation (the
@@ -210,6 +210,28 @@ higher-degree block radical input (`BlockRadLB6`, with its `g`-dependent abc/Lan
 known radical-method ceiling). `k^3` stays below the `k^5` unconditional ceiling, so it too is a valid
 high-`n` input for the squarefree-counting reduction.
 
+## `Erdos137/SquarefreeCapacity.lean` — the deterministic squarefree-capacity reduction
+
+The deterministic half of the squarefree-counting route, with **no** analytic number theory (no Pandey,
+no Baker–Harman–Pintz, no Mertens). If `F k n` is powerful, then every squarefree term `n+i` in the
+block has no prime factor `p ≥ k` — otherwise the `TaoPoint` large-prime uniqueness lemma
+(`veryBad_large_prime_sq`) forces `p² ∣ n+i`, contradicting squarefreeness. So each squarefree term is
+`(k-1)`-smooth, contributes valuation `≤ 1` at each `p < k`, and at most `⌊k/p⌋+1` block terms are
+divisible by `p` (`Ioc_dvd_le`). Hence the product of the squarefree terms divides the small-prime
+capacity `∏_{p<k} p^{⌊k/p⌋+1}`.
+
+| Theorem | Statement |
+|---|---|
+| `sqfree_term_no_large_prime` | powerful block + squarefree `n+i` ⟹ no prime `p ≥ k` divides `n+i` |
+| `powerful_sqfree_product_dvd_smooth_capacity` | `Powerful (F k n) → SqfreeBlockProduct k n ∣ SmoothCapacity k` |
+| `powerful_sqfree_product_le_smooth_capacity` | `Powerful (F k n) → SqfreeBlockProduct k n ≤ SmoothCapacity k` |
+
+Here `SqfreeBlockProduct k n = ∏_{i<k, n+i squarefree} (n+i)` and `SmoothCapacity k = ∏_{p<k} p^{⌊k/p⌋+1}`
+(the `⌊k/p⌋+1` exponent, not a ceiling, is exactly what `Ioc_dvd_le` proves). This is the deterministic
+companion to an **external** squarefree-counting theorem such as Pandey's: it converts "enough squarefree
+terms in the block" into a contradiction with the capacity bound, **modulo** that count, which is not
+formalized here.
+
 ## What is and is not formalized
 
 - **Proved (standard axioms only):** the radical decompositions, the uniform overlap bound
@@ -220,8 +242,9 @@ high-`n` input for the squarefree-counting reduction.
   `crude_g_finiteness`, and the sharp instances `not_powerful_of_large_g4` / `g4_crude_finiteness`
   (`k^4`) and `not_powerful_of_large_g6` / `g6_crude_finiteness` (`k^3`)), the
   abstract range-splice template (`abstract_splice_no_counterexamples`), the elementary
-  very-bad-interval lemmas (`TaoPoint`), and all the finiteness deductions. `Erdos137/AxiomAudit.lean`
-  prints the footprint of every theorem above.
+  very-bad-interval lemmas (`TaoPoint`), the deterministic squarefree-capacity reduction
+  (`powerful_sqfree_product_dvd_smooth_capacity`), and all the finiteness deductions.
+  `Erdos137/AxiomAudit.lean` prints the footprint of every theorem above.
 - **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB` /
   `BlockRadLB4` / `BlockRadLB5` / `BlockRadLB6` / `BlockRadLBg g` (the block bounds are the normalized,
   tail-absorbed forms, guarded `4 ≤ k` / `5 ≤ k` / `6 ≤ k` resp. `g ≤ k`). abc itself is not formalized;

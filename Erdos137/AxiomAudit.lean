@@ -7,6 +7,7 @@ import Erdos137.TaoPoint
 import Erdos137.SpliceFiniteness
 import Erdos137.QuarticCrude
 import Erdos137.SexticCrude
+import Erdos137.SquarefreeCapacity
 
 /-!
 # Axiom audit
@@ -72,3 +73,8 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.g4_crude_finiteness                -- BlockRadLB4 → {n | powerful (F k n)} finite (g=4, standard 3)
 #print axioms Erdos137.not_powerful_of_large_g6           -- BlockRadLB6 → k^3 < n → ¬powerful (sharp sextic, standard 3)
 #print axioms Erdos137.g6_crude_finiteness                -- BlockRadLB6 → {n | powerful (F k n)} finite (g=6, standard 3)
+
+-- Deterministic squarefree-capacity reduction (SquarefreeCapacity): no Pandey/BHP/Mertens/analysis.
+#print axioms Erdos137.sqfree_term_no_large_prime                  -- powerful + squarefree term ⟹ no prime ≥ k (standard 3)
+#print axioms Erdos137.powerful_sqfree_product_dvd_smooth_capacity -- ∏ sqfree terms ∣ ∏_{p<k} p^{⌊k/p⌋+1} (standard 3)
+#print axioms Erdos137.powerful_sqfree_product_le_smooth_capacity  -- size form via Nat.le_of_dvd (standard 3)
