@@ -44,11 +44,26 @@ theorem (Pandey) bounding the number of squarefree terms in a block.  That analy
 *not* formalized here; only the deterministic capacity bound for the product of the squarefree
 terms is.
 
+## Counting obstruction
+
+Bounding each squarefree term below by `n` turns the product bound into a *count* bound.  With
+`SqfreeBlockCount k n := #{i < k | Squarefree (n+i)}` we have
+`n ^ SqfreeBlockCount k n ≤ SqfreeBlockProduct k n ≤ SmoothCapacity k`, and the capacity factors
+as `SmoothCapacity k = L k * P k ≤ k! · 4^k ≤ (4k)^k` (Legendre's first layer `L ∣ k!` plus the
+primorial bound `P ≤ 4^k`).  Hence *enough* squarefree terms forces non-powerfulness:
+`not_powerful_of_sqfree_count_beats_fourk` says `(4k)^k < n ^ SqfreeBlockCount k n ⟹ ¬ Powerful`.
+This is the deterministic interface to an **external** squarefree-count lower bound (Pandey, not
+formalized here): supply any `n` and a count exceeding `log_n ((4k)^k)` and the block cannot be
+powerful.
+
 ## Main results (Mathlib's three axioms only)
 
 * `sqfree_term_no_large_prime` : a squarefree block term has no prime factor `≥ k`.
 * `powerful_sqfree_product_dvd_smooth_capacity` : the squarefree product divides the capacity.
 * `powerful_sqfree_product_le_smooth_capacity` : the size form (via `Nat.le_of_dvd`).
+* `powerful_sqfree_count_capacity_bound` : the counting form `n^count ≤ SmoothCapacity`.
+* `smoothCapacity_eq_L_mul_P`, `smoothCapacity_le_four_mul_pow` : capacity `= L·P ≤ (4k)^k`.
+* `not_powerful_of_sqfree_count_beats_fourk` : explicit count ⟹ non-powerful obstruction.
 -/
 
 open scoped BigOperators
@@ -236,6 +251,115 @@ the small-prime capacity `∏_{p < k} p^{⌊k/p⌋+1}`. Immediate from the divis
 theorem powerful_sqfree_product_le_smooth_capacity {k n : ℕ} (hn : 1 ≤ n)
     (hPow : Powerful (F k n)) : SqfreeBlockProduct k n ≤ SmoothCapacity k :=
   Nat.le_of_dvd (smoothCapacity_pos k) (powerful_sqfree_product_dvd_smooth_capacity hn hPow)
+
+/-! ## Counting form of the obstruction and explicit capacity bound -/
+
+/-- Number of squarefree terms in the block. -/
+def SqfreeBlockCount (k n : ℕ) : ℕ := (SqfreeBlockIndices k n).card
+
+/-- The product of the squarefree block terms is at least `n ^ SqfreeBlockCount`. -/
+lemma sqfreeBlockProduct_ge_pow {k n : ℕ} :
+    n ^ SqfreeBlockCount k n ≤ SqfreeBlockProduct k n := by
+  unfold SqfreeBlockCount SqfreeBlockProduct
+  calc n ^ (SqfreeBlockIndices k n).card
+        = ∏ _i ∈ SqfreeBlockIndices k n, n := by rw [Finset.prod_const]
+    _ ≤ ∏ i ∈ SqfreeBlockIndices k n, (n + i) :=
+        Finset.prod_le_prod' (fun i _ => Nat.le_add_right n i)
+
+/-- Counting form of the squarefree-capacity obstruction. -/
+theorem powerful_sqfree_count_capacity_bound {k n : ℕ}
+    (hn : 1 ≤ n) (hPow : Powerful (F k n)) :
+    n ^ SqfreeBlockCount k n ≤ SmoothCapacity k :=
+  le_trans sqfreeBlockProduct_ge_pow (powerful_sqfree_product_le_smooth_capacity hn hPow)
+
+/-- If the squarefree count is large enough to beat capacity, the block is not powerful. -/
+theorem not_powerful_of_sqfree_capacity_exceeded {k n : ℕ}
+    (hn : 1 ≤ n) (hcap : SmoothCapacity k < n ^ SqfreeBlockCount k n) :
+    ¬ Powerful (F k n) := by
+  intro hPow; have h := powerful_sqfree_count_capacity_bound hn hPow; omega
+
+/-- The squarefree-capacity product is exactly `L k * P k`. -/
+lemma smoothCapacity_eq_L_mul_P (k : ℕ) : SmoothCapacity k = L k * P k := by
+  unfold SmoothCapacity L P
+  calc ∏ p ∈ Nat.primesBelow k, p ^ (k / p + 1)
+        = ∏ p ∈ Nat.primesBelow k, (p ^ (k / p) * p) := by
+          apply Finset.prod_congr rfl; intro p _; rw [pow_succ]
+    _ = (∏ p ∈ Nat.primesBelow k, p ^ (k / p)) * (∏ p ∈ Nat.primesBelow k, p) := by
+          rw [Finset.prod_mul_distrib]
+
+/-- `L k` divides `k!` (Legendre's first layer). -/
+lemma L_dvd_factorial (k : ℕ) : L k ∣ Nat.factorial k := by
+  rw [← Nat.factorization_le_iff_dvd (L_ne_zero k) (Nat.factorial_ne_zero k)]
+  intro p
+  unfold L
+  rw [Nat.factorization_prod (fun q hq => by
+    have := (Nat.prime_of_mem_primesBelow hq).pos; positivity)]
+  rw [Finset.sum_apply']
+  by_cases hp : p ∈ Nat.primesBelow k
+  · have hpp : p.Prime := Nat.prime_of_mem_primesBelow hp
+    rw [Finset.sum_eq_single p
+      (fun q hq hqp => by
+        have hqprime : q.Prime := Nat.prime_of_mem_primesBelow hq
+        rw [Nat.Prime.factorization_pow hqprime, Finsupp.single_apply, if_neg hqp])
+      (fun h => absurd hp h)]
+    rw [Nat.Prime.factorization_pow hpp, Finsupp.single_apply, if_pos rfl]
+    exact div_le_factorization_factorial hpp
+  · rw [Finset.sum_eq_zero (fun q hq => by
+      have hqprime : q.Prime := Nat.prime_of_mem_primesBelow hq
+      have hne : q ≠ p := by rintro rfl; exact hp hq
+      rw [Nat.Prime.factorization_pow hqprime, Finsupp.single_apply, if_neg hne])]
+    exact Nat.zero_le _
+
+lemma L_le_factorial (k : ℕ) : L k ≤ Nat.factorial k :=
+  Nat.le_of_dvd (Nat.factorial_pos k) (L_dvd_factorial k)
+
+/-- Coarse explicit capacity bound: `SmoothCapacity k ≤ (4*k)^k`. -/
+theorem smoothCapacity_le_four_mul_pow (k : ℕ) : SmoothCapacity k ≤ (4 * k) ^ k := by
+  calc SmoothCapacity k = L k * P k := smoothCapacity_eq_L_mul_P k
+    _ ≤ Nat.factorial k * P k := Nat.mul_le_mul_right _ (L_le_factorial k)
+    _ ≤ k ^ k * 4 ^ k := Nat.mul_le_mul (Nat.factorial_le_pow k) (P_le_4_pow k)
+    _ = (4 * k) ^ k := by rw [← Nat.mul_pow]; ring
+
+/-- Fully explicit squarefree-count obstruction. -/
+theorem not_powerful_of_sqfree_count_beats_fourk {k n : ℕ}
+    (hn : 1 ≤ n) (hbeat : (4 * k) ^ k < n ^ SqfreeBlockCount k n) :
+    ¬ Powerful (F k n) := by
+  intro hPow
+  have h1 := powerful_sqfree_count_capacity_bound hn hPow
+  have h2 := smoothCapacity_le_four_mul_pow k
+  omega
+
+/-- A squarefree term with a prime factor `p ≥ k` rules out powerfulness. -/
+theorem not_powerful_of_sqfree_term_large_prime {k n i p : ℕ}
+    (hn : 1 ≤ n) (hi : i < k) (hsq : Squarefree (n + i))
+    (hp : p.Prime) (hkp : k ≤ p) (hpdvd : p ∣ n + i) : ¬ Powerful (F k n) := by
+  intro hPow
+  exact sqfree_term_no_large_prime hn hPow hi hsq hp hkp hpdvd
+
+/-- Existential version. -/
+theorem not_powerful_of_exists_sqfree_term_large_prime {k n : ℕ}
+    (hn : 1 ≤ n)
+    (h : ∃ i < k, Squarefree (n + i) ∧ ∃ p, p.Prime ∧ k ≤ p ∧ p ∣ n + i) :
+    ¬ Powerful (F k n) := by
+  rcases h with ⟨i, hi, hsq, p, hp, hkp, hpdvd⟩
+  exact not_powerful_of_sqfree_term_large_prime hn hi hsq hp hkp hpdvd
+
+/-! ## Abstract squarefree-splice template -/
+
+/-- A range predicate on which the squarefree count beats the deterministic capacity. This is the
+external interface for a squarefree-counting input (e.g. Pandey's): it is **not** proved here, only
+consumed. Mirrors the `PrimeInBlockOnRange` pattern of the abstract BHP splice. -/
+def SqfreeCapacityBeatenOnRange (Range : ℕ → ℕ → Prop) : Prop :=
+  ∀ k n : ℕ, 3 ≤ k → 1 ≤ n → Range k n →
+    SmoothCapacity k < n ^ SqfreeBlockCount k n
+
+/-- **Abstract squarefree splice.** On any range where the squarefree count beats the capacity, no
+powerful block exists. The external squarefree-counting input enters only as the premise `hRange`;
+no analytic number theory is formalized here. -/
+theorem squarefree_range_not_powerful {Range : ℕ → ℕ → Prop}
+    (hRange : SqfreeCapacityBeatenOnRange Range) {k n : ℕ}
+    (hk : 3 ≤ k) (hn : 1 ≤ n) (hR : Range k n) : ¬ Powerful (F k n) :=
+  not_powerful_of_sqfree_capacity_exceeded hn (hRange k n hk hn hR)
 
 end  -- noncomputable section
 

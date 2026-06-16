@@ -225,12 +225,19 @@ capacity `∏_{p<k} p^{⌊k/p⌋+1}`.
 | `sqfree_term_no_large_prime` | powerful block + squarefree `n+i` ⟹ no prime `p ≥ k` divides `n+i` |
 | `powerful_sqfree_product_dvd_smooth_capacity` | `Powerful (F k n) → SqfreeBlockProduct k n ∣ SmoothCapacity k` |
 | `powerful_sqfree_product_le_smooth_capacity` | `Powerful (F k n) → SqfreeBlockProduct k n ≤ SmoothCapacity k` |
+| `smoothCapacity_eq_L_mul_P` | `SmoothCapacity k = L k · P k` (the capacity is the smooth layer times the primorial) |
+| `smoothCapacity_le_four_mul_pow` | `SmoothCapacity k ≤ (4k)^k` (via `L ∣ k!`, `P ≤ 4^k`, `k! ≤ k^k`) |
+| `powerful_sqfree_count_capacity_bound` | `Powerful (F k n) → n^{SqfreeBlockCount k n} ≤ SmoothCapacity k` |
+| `not_powerful_of_sqfree_count_beats_fourk` | `(4k)^k < n^{SqfreeBlockCount k n} → ¬ Powerful (F k n)` |
+| `squarefree_range_not_powerful` | external range hypothesis `SmoothCapacity k < n^{SqfreeBlockCount}` on `Range` ⟹ `¬ Powerful (F k n)` |
 
-Here `SqfreeBlockProduct k n = ∏_{i<k, n+i squarefree} (n+i)` and `SmoothCapacity k = ∏_{p<k} p^{⌊k/p⌋+1}`
-(the `⌊k/p⌋+1` exponent, not a ceiling, is exactly what `Ioc_dvd_le` proves). This is the deterministic
-companion to an **external** squarefree-counting theorem such as Pandey's: it converts "enough squarefree
-terms in the block" into a contradiction with the capacity bound, **modulo** that count, which is not
-formalized here.
+Here `SqfreeBlockProduct k n = ∏_{i<k, n+i squarefree} (n+i)`, `SqfreeBlockCount k n` is the number of
+squarefree terms, and `SmoothCapacity k = ∏_{p<k} p^{⌊k/p⌋+1}` (the `⌊k/p⌋+1` exponent, not a ceiling, is
+exactly what `Ioc_dvd_le` proves). Bounding each squarefree term below by `n` upgrades the product bound
+to a **counting obstruction**: `n^{count} ≤ SmoothCapacity k = L·P ≤ (4k)^k`, so a block with
+sufficiently many squarefree terms cannot be powerful. This is the deterministic companion to an **external**
+squarefree-counting theorem such as Pandey's — it converts "enough squarefree terms in the block" into a
+contradiction with the explicit capacity `(4k)^k`, **modulo** that count, which is not formalized here.
 
 ## What is and is not formalized
 
