@@ -2,6 +2,7 @@ import Erdos137.Finiteness
 import Erdos137.JointFiniteness
 import Erdos137.SmoothRefinement
 import Erdos137.TaoPoint
+import Erdos137.SpliceFiniteness
 
 /-!
 # Axiom audit
@@ -40,3 +41,13 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.veryBad_large_prime_sq             -- very bad + large prime ⟹ p² ∣ factor (standard 3)
 #print axioms Erdos137.prime_term_gt_length_not_powerful  -- prime factor > length ⟹ not powerful (standard 3)
 #print axioms Erdos137.prime_in_block_not_powerful        -- restatement (standard 3)
+
+-- g=5 honest finiteness + abstract splice machine (this file): no global BHP.
+#print axioms Erdos137.W5_le_pow                          -- overlap bound W5 ≤ k^k (proved, standard 3)
+#print axioms Erdos137.master_ineq5                       -- n^{3k}·L^5 ≤ (k^{2k})^5·P^{10} (BlockRadLB5 premise)
+#print axioms Erdos137.not_powerful_g5                    -- BlockRadLB5 → (k^{2k})^5·P^{10} < n^{3k}·L^5 → ¬powerful
+#print axioms Erdos137.upper_half_prime_not_powerful      -- n≤k → ¬powerful (UNCONDITIONAL, Bertrand; standard 3)
+#print axioms Erdos137.powerful_bound_g5                  -- BlockRadLB5 → powerful → n ≤ Msplice k (standard 3)
+#print axioms Erdos137.g5_finiteness                      -- BlockRadLB5 → {n | powerful (F k n)} finite (honest, no BHP)
+#print axioms Erdos137.prime_range_not_powerful           -- PrimeInBlockOnRange Range → Range k n → ¬powerful (premise)
+#print axioms Erdos137.abstract_splice_no_counterexamples -- CoversAll + ranged prime + high input → ¬powerful (premises)

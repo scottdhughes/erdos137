@@ -8,7 +8,7 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Four result modules:
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Five result modules:
 
 ## `Erdos137/Finiteness.lean` — per-fixed-`k` finiteness (Granville–Langevin route)
 
@@ -74,17 +74,50 @@ prime-in-short-interval input.
 Tao's analytic density theorem (`O(x^{2/5+o(1)})`) and his two-term linear-relation extraction
 are **not** formalized — only the elementary uniqueness/valuation facts above.
 
+## `Erdos137/SpliceFiniteness.lean` — the quintic per-`k` bound and the abstract splice machine
+
+The **quintic** block route (`g = 5`, ingredient `4/5 > 2/3`) and an honest separation of two distinct
+outputs. The single analytic input is `BlockRadLB5`, the tail-absorbed quintic block radical bound
+`(F k n)^{4/5} ≤ ∏ rad over the ⌊k/5⌋ quintic blocks` — a normalized hypothesis guarded by `5 ≤ k`
+(for `k < 5` there are no quintic blocks). From it alone, `powerful_bound_g5` gives the explicit
+`Powerful (F k n) → n ≤ Msplice k`, hence `g5_finiteness` (**per-`k`** finiteness, for each fixed
+`k ≥ 5`). Separately, `abstract_splice_no_counterexamples` is a range-splice **template**: parametric
+in `Mid`/`High` predicates, it concludes `¬ Powerful (F k n)` from a `CoversAll` decomposition, a
+**ranged** prime-in-block input on `Mid`, and a non-powerfulness input on `High` — keeping
+Baker–Harman–Pintz, Mertens, and the exact exponents strictly external.
+
+| Theorem | Statement |
+|---|---|
+| `W5_le_pow` | `W5 k n ≤ k^k` (proved, Legendre — the quintic overlap) |
+| `master_ineq5` | `BlockRadLB5 → 5 ≤ k → Powerful → n^{3k}·L^5 ≤ (k^{2k})^5·P^{10}` |
+| `not_powerful_g5` | `BlockRadLB5 → 5 ≤ k → (k^{2k})^5·P^{10} < n^{3k}·L^5 → ¬ Powerful (F k n)` |
+| `powerful_bound_g5` | `BlockRadLB5 → 5 ≤ k → Powerful (F k n) → n ≤ Msplice k` (reusable core) |
+| `g5_finiteness` | `BlockRadLB5 → 5 ≤ k → {n ≥ 1 : F k n powerful}` finite (per-`k`) |
+| `upper_half_prime_not_powerful` | `n ≤ k → ¬ Powerful (F k n)` (**unconditional**, Bertrand) |
+| `prime_range_not_powerful` | `PrimeInBlockOnRange Range → Range k n → ¬ Powerful (F k n)` |
+| `abstract_splice_no_counterexamples` | `CoversAll Mid High` + ranged prime on `Mid` + non-powerful on `High` ⟹ `¬ Powerful` for all `(k,n)` |
+
+The intended Pandey-free **no-gap** splice is an *asymptotic* reading of the abstract template:
+`Mid` = the Baker–Harman–Pintz range `k < n ≤ k^{40/21−o(1)}`, `High` = the Mertens-sharpened quintic
+range `n > k^{5/3+o(1)}`; since `5/3 < 40/21` the ranges overlap for all large `k` (with a finite
+exceptional range and `k = 3,4` handled by the triple route). BHP, Mertens, and that asymptotic
+coverage are **not** formalized — they enter only as the external premises of the splice theorem.
+
 ## What is and is not formalized
 
-- **Proved (standard axioms only):** the radical decompositions, `W ≤ k^k`, the smooth refinement
-  `rad(F)²·L ≤ F·P²`, the elementary very-bad-interval lemmas (`TaoPoint`), and all the finiteness
-  deductions. `Erdos137/AxiomAudit.lean` prints the footprint of every theorem above.
-- **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB`.
+- **Proved (standard axioms only):** the radical decompositions, `W ≤ k^k` and `W5 ≤ k^k`, the
+  smooth refinement `rad(F)²·L ≤ F·P²`, the quintic per-`k` bound (`powerful_bound_g5`,
+  `g5_finiteness`) and the abstract range-splice template (`abstract_splice_no_counterexamples`), the
+  elementary very-bad-interval lemmas (`TaoPoint`), and all the finiteness deductions.
+  `Erdos137/AxiomAudit.lean` prints the footprint of every theorem above.
+- **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB` /
+  `BlockRadLB5` (the last is the normalized, tail-absorbed quintic block bound, guarded `5 ≤ k`).
   abc itself is not formalized.
 - **Not formalized:** the Mertens lower bound on `L` (so the sharpened threshold is parametric,
   with `k^{3+o(1)}` as its consequence); Tao's analytic density theorem and his two-term
-  linear-relation extraction; and any unconditional input (e.g. Baker–Harman–Pintz, Pandey) used
-  in the accompanying discussion.
+  linear-relation extraction; the asymptotic `5/3 < 40/21` range coverage of the quintic splice
+  (carried as the `CoversAll`/`High` premises of `abstract_splice_no_counterexamples`); and any
+  unconditional input (e.g. Baker–Harman–Pintz, Pandey) used in the accompanying discussion.
 
 ## Verifying
 
