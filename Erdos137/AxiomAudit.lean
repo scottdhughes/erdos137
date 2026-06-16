@@ -1,6 +1,7 @@
 import Erdos137.Finiteness
 import Erdos137.JointFiniteness
 import Erdos137.SmoothRefinement
+import Erdos137.TaoPoint
 
 /-!
 # Axiom audit
@@ -33,3 +34,9 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.master_ineq                         -- n^k·L³ ≤ (k^{2k})³·P^6 (BlockRadLB)
 #print axioms Erdos137.not_powerful_of_large'             -- HEADLINE': BlockRadLB → (k^{2k})³·P^6 < n^k·L³ → ¬powerful
 #print axioms Erdos137.not_powerful_finite'               -- per-k finiteness (smooth-refined route)
+
+-- Tao "very bad interval" elementary structure (this file): unconditional, no radical/abc input.
+#print axioms Erdos137.prime_dvd_two_terms_eq             -- prime ≥ k divides ≤ 1 block factor (standard 3)
+#print axioms Erdos137.veryBad_large_prime_sq             -- very bad + large prime ⟹ p² ∣ factor (standard 3)
+#print axioms Erdos137.prime_term_gt_length_not_powerful  -- prime factor > length ⟹ not powerful (standard 3)
+#print axioms Erdos137.prime_in_block_not_powerful        -- restatement (standard 3)

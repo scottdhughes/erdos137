@@ -8,7 +8,7 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Three result modules:
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Four result modules:
 
 ## `Erdos137/Finiteness.lean` — per-fixed-`k` finiteness (Granville–Langevin route)
 
@@ -55,16 +55,36 @@ Substituting the Mertens lower bound `log L = k log k − O(k)` (and `P ≤ 4^k`
 Mathlib and is not formalized here**, so the repository carries the gain in the parametric form and
 the `k^{3+o(1)}` reading is the pen-and-paper consequence.
 
+## `Erdos137/TaoPoint.lean` — the elementary "very bad interval" structure
+
+The deterministic core of Tao's *very bad intervals* (a block `[n,n+k-1]` whose product is
+powerful), **unconditional** and purely valuation-theoretic. A prime `p ≥ k` divides at most one
+of the `k` factors (two factors differ by `< k`), so in a very bad block all of `v_p(F)` comes
+from that single factor and powerfulness squares it — and a prime `p > k` that *equals* a factor
+cannot occur. The last lemma is the elementary step that pairs with a Baker–Harman–Pintz
+prime-in-short-interval input.
+
+| Theorem | Statement |
+|---|---|
+| `VeryBad k n` | `Powerful (F k n)` — Tao's very bad interval |
+| `prime_dvd_two_terms_eq` | a prime `p ≥ k` divides at most one block factor |
+| `veryBad_large_prime_sq` | very bad + `p ≥ k`, `p ∣ n+i` ⟹ `p² ∣ n+i` |
+| `prime_in_block_not_powerful` | a prime `p > k` that is a block factor ⟹ `¬ Powerful (F k n)` |
+
+Tao's analytic density theorem (`O(x^{2/5+o(1)})`) and his two-term linear-relation extraction
+are **not** formalized — only the elementary uniqueness/valuation facts above.
+
 ## What is and is not formalized
 
 - **Proved (standard axioms only):** the radical decompositions, `W ≤ k^k`, the smooth refinement
-  `rad(F)²·L ≤ F·P²`, and all the finiteness deductions. `Erdos137/AxiomAudit.lean` prints the
-  footprint of every theorem above.
+  `rad(F)²·L ≤ F·P²`, the elementary very-bad-interval lemmas (`TaoPoint`), and all the finiteness
+  deductions. `Erdos137/AxiomAudit.lean` prints the footprint of every theorem above.
 - **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB`.
   abc itself is not formalized.
 - **Not formalized:** the Mertens lower bound on `L` (so the sharpened threshold is parametric,
-  with `k^{3+o(1)}` as its consequence), and any unconditional input (e.g. Baker–Harman–Pintz,
-  Pandey) used in the accompanying discussion.
+  with `k^{3+o(1)}` as its consequence); Tao's analytic density theorem and his two-term
+  linear-relation extraction; and any unconditional input (e.g. Baker–Harman–Pintz, Pandey) used
+  in the accompanying discussion.
 
 ## Verifying
 
