@@ -67,9 +67,11 @@ discharged as a premise.
 ## What is left open
 
 The unconditional Erdős #137 remains open, as does abc. The crude `g = 3` triple route gives
-`n > k^6`; the analogous crude `g = 4` block route gives the threshold `n > k^4`, which together with Pandey's
+`n > k^6` (`not_powerful_of_large`, now an instance of the generic `not_powerful_crude_g` in
+`BlockFramework`); the analogous crude `g = 4` block route gives the sharper threshold `n > k^4`
+(`not_powerful_of_large_g4` in `Erdos137/QuarticCrude.lean`), which together with Pandey's
 unconditional squarefree-value count for `n < k^{5+δ}` would give full joint `(n, k)` finiteness.
-Those last two inputs are not formalized here.
+That last unconditional input (Pandey) is not formalized here.
 -/
 
 open scoped BigOperators
@@ -158,78 +160,21 @@ lemma blockRadLB_iff : BlockRadLB ↔ BlockRadLBg 3 := by
 
 /-- **Headline.** Under the block radical lower bound `BlockRadLB` (the genuine abc input, the
 ONLY hypothesis), for `k ≥ 3` and `n > k^6` the product `F k n` is **not powerful**. The overlap
-`W ≤ k^k` is proved (`W_le_pow`), not assumed. -/
+`W ≤ k^k` is proved (`W_le_pow`), not assumed.
+
+Now the **`g = 3` instance of the generic crude route** `not_powerful_crude_g` (`BlockFramework`,
+PART E): `master_ineq_crude_g 3` gives the integer master inequality `n ^ (3 - 2) ≤ k ^ (2 * 3)`,
+i.e. `n ≤ k ^ 6`, so `k ^ 6 < n` is a contradiction. The statement is unchanged. -/
 theorem not_powerful_of_large (hBlock : BlockRadLB) {k n : ℕ}
     (hk : 3 ≤ k) (hn : k ^ 6 < n) : ¬ Powerful (F k n) := by
-  intro hPow
   have hn1 : 1 ≤ n := by have : 1 ≤ k ^ 6 := Nat.one_le_pow _ _ (by omega); omega
-  have hkpos : 0 < k := by omega
-  set Φ : ℝ := (F k n : ℝ) with hΦ
-  have hFne : F k n ≠ 0 := F_ne_zero hn1
-  have hΦpos : 0 < Φ := by rw [hΦ]; exact_mod_cast Nat.pos_of_ne_zero hFne
-  have hblk := hBlock k n hk hn1
-  set Prd : ℝ := ((∏ j ∈ Finset.range (k / 3), rad (F 3 (n + 3 * j)) : ℕ) : ℝ) with hPrd
-  have hdecomp : Prd ≤ (rad (F k n) : ℝ) * (W k n : ℝ) := by
-    rw [hPrd]; exact_mod_cast rad_triples_le hn1
-  have hradsq : (rad (F k n) : ℝ) ^ 2 ≤ Φ := by
-    rw [hΦ]; exact_mod_cast powerful_rad_sq_le hFne hPow
-  have hradpos : (0 : ℝ) ≤ (rad (F k n) : ℝ) := by positivity
-  have hW : (W k n : ℝ) ≤ (k : ℝ) ^ k := by exact_mod_cast W_le_pow hn1
-  have hFlow : (n : ℝ) ^ k ≤ Φ := by rw [hΦ]; exact_mod_cast pow_le_F (k := k) (n := n)
-  -- Chain: Φ^{2/3} ≤ ∏rad ≤ rad·W ≤ rad·k^k; square it.
-  have hchain2 : Φ ^ ((2 : ℝ) / 3) ≤ (rad (F k n) : ℝ) * (k : ℝ) ^ k :=
-    le_trans (le_trans hblk hdecomp) (mul_le_mul_of_nonneg_left hW hradpos)
-  have hbase_nonneg : (0 : ℝ) ≤ Φ ^ ((2 : ℝ) / 3) := Real.rpow_nonneg (le_of_lt hΦpos) _
-  have hsq : (Φ ^ ((2 : ℝ) / 3)) ^ 2 ≤ ((rad (F k n) : ℝ) * (k : ℝ) ^ k) ^ 2 :=
-    pow_le_pow_left₀ hbase_nonneg hchain2 2
-  have hL : (Φ ^ ((2 : ℝ) / 3)) ^ 2 = Φ ^ ((4 : ℝ) / 3) := by
-    rw [← Real.rpow_natCast (Φ ^ ((2:ℝ)/3)) 2, ← Real.rpow_mul (le_of_lt hΦpos)]
-    norm_num
-  have hR : ((rad (F k n) : ℝ) * (k : ℝ) ^ k) ^ 2
-      = (rad (F k n) : ℝ) ^ 2 * ((k : ℝ) ^ k) ^ 2 := by ring
-  rw [hL, hR] at hsq
-  have hk2k : ((k : ℝ) ^ k) ^ 2 = (k : ℝ) ^ (2 * k) := by rw [← pow_mul]; ring_nf
-  rw [hk2k] at hsq
-  have hk2kpos : (0 : ℝ) < (k : ℝ) ^ (2 * k) := by positivity
-  have hsq2 : Φ ^ ((4 : ℝ) / 3) ≤ Φ * (k : ℝ) ^ (2 * k) :=
-    le_trans hsq (mul_le_mul_of_nonneg_right hradsq (le_of_lt hk2kpos))
-  have hΦsplit : Φ ^ ((4 : ℝ) / 3) = Φ ^ ((1 : ℝ) / 3) * Φ := by
-    rw [show (4 : ℝ)/3 = (1:ℝ)/3 + 1 by norm_num, Real.rpow_add hΦpos, Real.rpow_one]
-  rw [hΦsplit] at hsq2
-  have hcube : Φ ^ ((1 : ℝ) / 3) ≤ (k : ℝ) ^ (2 * k) := by
-    have hsq3 : Φ ^ ((1 : ℝ) / 3) * Φ ≤ (k : ℝ) ^ (2 * k) * Φ := by
-      rw [mul_comm ((k : ℝ) ^ (2 * k)) Φ]; exact hsq2
-    exact le_of_mul_le_mul_right hsq3 hΦpos
-  have hnk_nonneg : (0 : ℝ) ≤ (n : ℝ) ^ k := by positivity
-  have hncube : ((n : ℝ) ^ k) ^ ((1 : ℝ) / 3) ≤ Φ ^ ((1 : ℝ) / 3) :=
-    Real.rpow_le_rpow hnk_nonneg hFlow (by norm_num)
-  have hkey : ((n : ℝ) ^ k) ^ ((1 : ℝ) / 3) ≤ (k : ℝ) ^ (2 * k) := le_trans hncube hcube
-  have hnpos : (0 : ℝ) < (n : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero (by omega)
-  have hkRpos : (0 : ℝ) < (k : ℝ) := by exact_mod_cast hkpos
-  -- rewrite both sides as `· ^ ((k:ℝ)/3)` of the bases `n` and `k^6`
-  have hLrw : ((n : ℝ) ^ k) ^ ((1 : ℝ) / 3) = (n : ℝ) ^ ((k : ℝ) / 3) := by
-    rw [← Real.rpow_natCast (n : ℝ) k, ← Real.rpow_mul (le_of_lt hnpos)]
-    congr 1; ring
-  have hRrw : (k : ℝ) ^ (2 * k) = ((k : ℝ) ^ 6) ^ ((k : ℝ) / 3) := by
-    have e1 : (k : ℝ) ^ (2 * k) = (k : ℝ) ^ ((2 * k : ℕ) : ℝ) := (Real.rpow_natCast _ _).symm
-    have e2 : ((k : ℝ) ^ 6 : ℝ) = (k : ℝ) ^ ((6 : ℕ) : ℝ) := (Real.rpow_natCast _ _).symm
-    rw [e1, e2, ← Real.rpow_mul (le_of_lt hkRpos)]
-    congr 1; push_cast; ring
-  rw [hLrw, hRrw] at hkey
-  have hexp_pos : (0 : ℝ) < (k : ℝ) / 3 := by positivity
-  have hnle : (n : ℝ) ≤ (k : ℝ) ^ 6 := by
-    by_contra hcon
-    push_neg at hcon
-    have hk6pos : (0 : ℝ) ≤ (k : ℝ) ^ 6 := by positivity
-    have := Real.rpow_lt_rpow hk6pos hcon hexp_pos
-    linarith [hkey, this]
-  have hn6 : ((k : ℝ) ^ 6) < (n : ℝ) := by
-    calc (k : ℝ) ^ 6 = ((k ^ 6 : ℕ) : ℝ) := by push_cast; ring
-      _ < (n : ℝ) := by exact_mod_cast hn
-  linarith [hnle, hn6]
+  exact not_powerful_crude_g 3 (blockRadLB_iff.mp hBlock) (by norm_num) hk hn1
+    (by simpa using hn)   -- k^(2*3)=k^6 < n^(3-2)=n^1=n
 
 /-- **Per-fixed-`k` finiteness.** For each `k ≥ 3`, under `BlockRadLB`, the set of `n ≥ 1` with
-`F k n` powerful is finite (all satisfy `n ≤ k^6`); the triple-route analogue of `erdos137_finite`. -/
+`F k n` powerful is finite (all satisfy `n ≤ k^6`); the triple-route analogue of `erdos137_finite`.
+The `g = 3` instance of the generic crude finiteness `crude_g_finiteness` (it runs off the re-pointed
+`not_powerful_of_large`). -/
 theorem not_powerful_finite (hBlock : BlockRadLB) {k : ℕ} (hk : 3 ≤ k) :
     {n : ℕ | 1 ≤ n ∧ Powerful (F k n)}.Finite := by
   apply Set.Finite.subset (Set.finite_Iic (k ^ 6))

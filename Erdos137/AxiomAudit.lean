@@ -5,6 +5,7 @@ import Erdos137.JointFiniteness
 import Erdos137.SmoothRefinement
 import Erdos137.TaoPoint
 import Erdos137.SpliceFiniteness
+import Erdos137.QuarticCrude
 
 /-!
 # Axiom audit
@@ -61,3 +62,10 @@ Expected: only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`, no
 #print axioms Erdos137.not_powerful_g                     -- BlockRadLBg → Mg < n^{(g-2)k}·L^g → ¬powerful (standard 3)
 #print axioms Erdos137.powerful_bound_g                   -- BlockRadLBg → powerful → n ≤ Mg g k (standard 3)
 #print axioms Erdos137.g_finiteness                       -- BlockRadLBg → {n | powerful (F k n)} finite (generic g)
+
+-- Crude (non-smooth) route + g=4 (BlockFramework / QuarticCrude): explicit integer threshold k^{2g/(g-2)}.
+#print axioms Erdos137.master_ineq_crude_g                -- BlockRadLBg → n^{g-2} ≤ k^{2g} (crude, standard 3)
+#print axioms Erdos137.not_powerful_crude_g               -- BlockRadLBg → k^{2g} < n^{g-2} → ¬powerful (standard 3)
+#print axioms Erdos137.crude_g_finiteness                 -- BlockRadLBg → {n | powerful (F k n)} finite (crude, generic g)
+#print axioms Erdos137.not_powerful_of_large_g4           -- BlockRadLB4 → k^4 < n → ¬powerful (sharp quartic, standard 3)
+#print axioms Erdos137.g4_crude_finiteness                -- BlockRadLB4 → {n | powerful (F k n)} finite (g=4, standard 3)

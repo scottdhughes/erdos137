@@ -8,7 +8,8 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Six result modules.
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Seven result modules,
+plus the shared `Base` layer and `AxiomAudit`.
 
 **Module layering.** `Erdos137/Base.lean` holds the shared `g`-independent foundation (the
 factorization/radical/Legendre helpers, the primorial `P` and Legendre layer `L`, and the smooth-part
@@ -127,6 +128,16 @@ it proves the smooth-refined **master inequality**, then the threshold and finit
 | `not_powerful_g` | `BlockRadLBg g → Mg g k < n^{(g-2)k}·L^g → ¬ Powerful (F k n)` (sharp threshold) |
 | `powerful_bound_g` | `BlockRadLBg g → Powerful → n ≤ Mg g k = (k^{2k})^g·P^{2g}` (coarse `L ≥ 1` collapse) |
 | `g_finiteness` | `BlockRadLBg g → 3 ≤ g → g ≤ k → {n ≥ 1 : F k n powerful}` finite (per-`k`) |
+| `master_ineq_crude_g` | `BlockRadLBg g → 3 ≤ g → g ≤ k → Powerful → n^{g-2} ≤ k^{2g}` (crude, no `L`/`P`) |
+| `not_powerful_crude_g` | `BlockRadLBg g → k^{2g} < n^{g-2} → ¬ Powerful (F k n)` |
+| `crude_g_finiteness` | `BlockRadLBg g → 3 ≤ g → g ≤ k → {n ≥ 1 : F k n powerful}` finite (crude) |
+
+There are **two routes**. The **smooth** `master_ineq_g` carries the `L^g` factor and is sharper, but
+its `k^{1+ε}` reading is gated behind unformalized Mertens (below). The **crude** `master_ineq_crude_g`
+drops the smooth refinement (`rad(F)² ≤ F` in place of `rad(F)²·L ≤ F·P²`), giving the clean integer
+law `n^{g-2} ≤ k^{2g}` with a **fully explicit** threshold `n > k^{2g/(g-2)}` — `g = 3 → k^6`,
+`g = 4 → k^4`, `g = 6 → k^3` — no constants left implicit. The crude route trades the sharper exponent
+for an honest explicit bound; `not_powerful_of_large` (g=3) is now its `g = 3` instance.
 
 The master inequality specializes **exactly** to the recorded cases: `g = 3` gives `n^k·L^3 ≤
 (k^{2k})^3·P^6` (the `SmoothRefinement` threshold) and `g = 5` gives `n^{3k}·L^5 ≤ (k^{2k})^5·P^{10}`
@@ -142,19 +153,42 @@ external asymptotic reading. This is not an unconditional improvement either: th
 packaged in `BlockRadLBg g` depends on fixed `g` — the known radical-method ceiling, not a uniform
 growing-`g` theorem.
 
+## `Erdos137/QuarticCrude.lean` — the quartic (`g = 4`) crude route, threshold `n > k^4`
+
+The `g = 4` instance of the crude route, carried to its sharp explicit form. Under `BlockRadLB4` (the
+reader-friendly `(F k n)^{3/4} ≤ ∏ rad` over quartic blocks, `blockRadLB4_iff`-bridged to
+`BlockRadLBg 4`), the crude master inequality reads `n^2 ≤ k^8`, i.e. `n ≤ k^4`.
+
+| Theorem | Statement |
+|---|---|
+| `not_powerful_of_large_g4` | `BlockRadLB4 → 4 ≤ k → k^4 < n → ¬ Powerful (F k n)` |
+| `g4_crude_finiteness` | `BlockRadLB4 → 4 ≤ k → {n ≥ 1 : F k n powerful}` finite (all `n ≤ k^4`) |
+
+The crude exponent is `2g/(g-2) = 2 + 4/(g-2)`, so `g = 4` is the **first (minimal)** block length for
+which the crude threshold drops below the `k^5` squarefree ceiling, and it gives the clean integer
+threshold `k^4`. Larger fixed block lengths give still smaller crude exponents — for example `g = 6`
+gives `k^3` — but require correspondingly higher-degree block radical inputs (`g = 5` gives the
+non-integer `k^{10/3}`). This `n > k^4` bound is the complementary high-`n` input for the usual
+squarefree-counting reduction: combined with the low-range prime obstruction and Pandey's unconditional
+squarefree short-interval count below `k^{5+δ}`
+([arXiv:2401.13981](https://arxiv.org/abs/2401.13981)), it gives the intended joint `(n, k)`
+finiteness argument. Pandey's count is **not** formalized here.
+
 ## What is and is not formalized
 
 - **Proved (standard axioms only):** the radical decompositions, the uniform overlap bound
   `Wg ≤ k^k` (with `W ≤ k^k`, `W5 ≤ k^k` its `g = 3, 5` instances), the smooth refinement
-  `rad(F)²·L ≤ F·P²`, the parametric master inequality `n^{(g-2)k}·L^g ≤ (k^{2k})^g·P^{2g}`
-  (`master_ineq_g`) and its per-`k` bound/finiteness (`powerful_bound_g`, `g_finiteness`), the abstract
-  range-splice template (`abstract_splice_no_counterexamples`), the elementary very-bad-interval lemmas
-  (`TaoPoint`), and all the finiteness deductions. `Erdos137/AxiomAudit.lean` prints the footprint of
-  every theorem above.
+  `rad(F)²·L ≤ F·P²`, the parametric **smooth** master inequality `n^{(g-2)k}·L^g ≤ (k^{2k})^g·P^{2g}`
+  (`master_ineq_g`) and the parametric **crude** master inequality `n^{g-2} ≤ k^{2g}`
+  (`master_ineq_crude_g`), their per-`k` bounds/finiteness (`powerful_bound_g`, `g_finiteness`,
+  `crude_g_finiteness`, and the sharp quartic `not_powerful_of_large_g4` / `g4_crude_finiteness`), the
+  abstract range-splice template (`abstract_splice_no_counterexamples`), the elementary
+  very-bad-interval lemmas (`TaoPoint`), and all the finiteness deductions. `Erdos137/AxiomAudit.lean`
+  prints the footprint of every theorem above.
 - **Hypotheses (the genuine, abc-conditional inputs, not formalized):** `RadLB` / `BlockRadLB` /
-  `BlockRadLB5` / `BlockRadLBg g` (the last two are the normalized, tail-absorbed block bounds, guarded
-  `5 ≤ k` resp. `g ≤ k`). abc itself is not formalized; each enters as a premise, so none appears in
-  any axiom footprint.
+  `BlockRadLB4` / `BlockRadLB5` / `BlockRadLBg g` (the block bounds are the normalized, tail-absorbed
+  forms, guarded `4 ≤ k` / `5 ≤ k` resp. `g ≤ k`). abc itself is not formalized; each enters as a
+  premise, so none appears in any axiom footprint.
 - **Not formalized:** the Mertens lower bound on `L` (so the sharpened threshold is parametric,
   with `k^{3+o(1)}` as its consequence); Tao's analytic density theorem and his two-term
   linear-relation extraction; the asymptotic `5/3 < 40/21` range coverage of the quintic splice

@@ -67,6 +67,24 @@ not re-proved.
 This framework sits ABOVE the concrete `g = 3, 5` modules: `JointFiniteness` defines `B`/`overlap`/`W`
 literally as `Bg 3`/`overlapg 3`/`Wg 3` and `SpliceFiniteness` defines `B5`/`overlap5`/`W5` as the
 `g = 5` instances, with their public lemmas re-derived as thin wrappers of the generic theorems below.
+
+## Two routes: SMOOTH vs. CRUDE
+
+There are now TWO parametric routes off the same block chain, and they must not be conflated:
+
+* **SMOOTH** (`master_ineq_g`, PART C): `n ^ ((g-2) k) · L ^ g ≤ (k^{2k})^g · P ^ {2g}`. This refines
+  the bare powerful inequality `rad ^ 2 ≤ F` by the smooth gain `L`, so it carries a *sharper
+  exponent* — threshold `k ^ {2g/(g-2) + o(1)}` (coarse `L ≥ 1` reading) or `k ^ {g/(g-2) + o(1)}`
+  (Mertens reading). But the sharpening is only realized through the *unformalized* Mertens lower
+  bound on `L`; the formal `.Finite` wrapper falls back on the coarse explicit `Mg`.
+* **CRUDE** (`master_ineq_crude_g`, PART E): `n ^ (g - 2) ≤ k ^ (2 * g)`, a clean INTEGER inequality
+  carrying NO `L`/`P` factor — it uses only `rad ^ 2 ≤ F`. The exponent is weaker but the threshold
+  is the *exact, fully explicit* `k ^ {2g/(g-2)}` with no `o(1)` and no Mertens input: `g = 3 → k^6`,
+  `g = 4 → k^4` (since `n^2 ≤ k^8 ⟺ n ≤ k^4`), `g = 6 → k^3`.
+
+So: the crude route gives a fully explicit constant at a worse exponent; the smooth route gives a
+sharper exponent only via the unformalized Mertens reading. The crude `g = 3` instance recovers the
+recorded `not_powerful_of_large` threshold `n > k^6` exactly.
 -/
 
 open scoped BigOperators
@@ -557,6 +575,156 @@ theorem g_finiteness (g : ℕ) (hBlock : BlockRadLBg g) (hg : 3 ≤ g) {k : ℕ}
   simp only [Set.mem_setOf_eq] at hn
   simp only [Set.mem_Iic]
   exact powerful_bound_g g hBlock hg hk hn.1 hn.2
+
+/-! ## PART E — the crude (non-smooth) route
+
+The crude route drops the smooth gain `L`/`P` entirely and uses only the bare powerful inequality
+`rad (F k n) ^ 2 ≤ F k n` (`powerful_rad_sq_le`). It yields a *weaker exponent* than the smooth
+route (`master_ineq_g`), but with a **fully explicit constant** and a clean INTEGER master
+inequality `n ^ (g - 2) ≤ k ^ (2 * g)` — the exact threshold `k ^ (2 * g / (g - 2))` with no
+`o(1)` and no unformalized Mertens input:
+
+* `g = 3` ⟹ `n ^ 1 ≤ k ^ 6`  (threshold `k ^ 6`, matching `not_powerful_of_large`);
+* `g = 4` ⟹ `n ^ 2 ≤ k ^ 8`  ⟺ `n ≤ k ^ 4` (threshold `k ^ 4`);
+* `g = 6` ⟹ `n ^ 4 ≤ k ^ {12}` ⟺ `n ≤ k ^ 3` (threshold `k ^ 3`).
+
+Contrast the SMOOTH `master_ineq_g` (`n ^ ((g-2) k) · L ^ g ≤ …`): that route carries the sharper
+exponent `k ^ {2g/(g-2) + o(1)}` (coarse reading) / `k ^ {g/(g-2) + o(1)}` (Mertens reading), but
+the sharpening is only available through the *unformalized* Mertens lower bound on `L`. The crude
+route below trades that sharper exponent for a fully explicit, formalized integer constant. -/
+
+/-- **Crude master inequality (generic `g`, non-smooth).** Under `BlockRadLBg g`, for `k ≥ g ≥ 3`
+and a powerful `F k n` with `n ≥ 1`, the clean INTEGER inequality
+
+  `n ^ (g - 2) ≤ k ^ (2 * g)`.
+
+This is `not_powerful_of_large`'s real chain (`Φ^{(g-1)/g} ≤ rad · k^k`, square using the crude
+`rad ^ 2 ≤ Φ`, divide by `Φ`, use `n^k ≤ Φ`) run with the symbolic exponents `(g-1)/g`, `(g-2)/g`,
+then raised to the `g`-th power and the common `k`-th power dropped via `Nat.pow_le_pow_iff_left`.
+Specializes to the `g = 3` threshold `n ≤ k^6` and the `g = 4` threshold `n^2 ≤ k^8` (`n ≤ k^4`). -/
+theorem master_ineq_crude_g (g : ℕ) (hBlock : BlockRadLBg g) (hg : 3 ≤ g) {k n : ℕ}
+    (hk : g ≤ k) (hn : 1 ≤ n) (hPow : Powerful (F k n)) : n ^ (g - 2) ≤ k ^ (2 * g) := by
+  have hg1 : 1 ≤ g := by omega
+  have hkpos : 0 < k := by omega
+  have hkne : k ≠ 0 := by omega
+  -- Real facts about `g`.
+  have hgR : (3 : ℝ) ≤ (g : ℝ) := by exact_mod_cast hg
+  have hgRpos : (0 : ℝ) < (g : ℝ) := by linarith
+  set Φ : ℝ := (F k n : ℝ) with hΦ
+  have hFne : F k n ≠ 0 := F_ne_zero hn
+  have hΦpos : 0 < Φ := by rw [hΦ]; exact_mod_cast Nat.pos_of_ne_zero hFne
+  -- Block chain: Φ^{(g-1)/g} ≤ ∏rad ≤ rad·Wg ≤ rad·k^k.
+  have hblk := hBlock k n hk hn
+  set Prd : ℝ := ((∏ j ∈ Finset.range (k / g), rad (F g (n + g * j)) : ℕ) : ℝ) with hPrd
+  have hdecomp : Prd ≤ (rad (F k n) : ℝ) * (Wg g k n : ℝ) := by
+    rw [hPrd]; exact_mod_cast rad_blocksg_le hg1 hn
+  have hradsq : (rad (F k n) : ℝ) ^ 2 ≤ Φ := by
+    rw [hΦ]; exact_mod_cast powerful_rad_sq_le hFne hPow
+  have hradpos : (0 : ℝ) ≤ (rad (F k n) : ℝ) := by positivity
+  have hW : (Wg g k n : ℝ) ≤ (k : ℝ) ^ k := by exact_mod_cast Wg_le_pow hg1 hn
+  have hFlow : (n : ℝ) ^ k ≤ Φ := by rw [hΦ]; exact_mod_cast pow_le_F (k := k) (n := n)
+  -- Chain: Φ^{(g-1)/g} ≤ ∏rad ≤ rad·W ≤ rad·k^k; square it.
+  have hchain : Φ ^ (((g : ℝ) - 1) / (g : ℝ)) ≤ (rad (F k n) : ℝ) * (k : ℝ) ^ k :=
+    le_trans (le_trans hblk hdecomp) (mul_le_mul_of_nonneg_left hW hradpos)
+  have hbase_nonneg : (0 : ℝ) ≤ Φ ^ (((g : ℝ) - 1) / (g : ℝ)) := Real.rpow_nonneg (le_of_lt hΦpos) _
+  have hsq : (Φ ^ (((g : ℝ) - 1) / (g : ℝ))) ^ 2 ≤ ((rad (F k n) : ℝ) * (k : ℝ) ^ k) ^ 2 :=
+    pow_le_pow_left₀ hbase_nonneg hchain 2
+  have hLsq : (Φ ^ (((g : ℝ) - 1) / (g : ℝ))) ^ 2 = Φ ^ (2 * ((g : ℝ) - 1) / (g : ℝ)) := by
+    rw [← Real.rpow_natCast (Φ ^ (((g : ℝ) - 1) / (g : ℝ))) 2, ← Real.rpow_mul (le_of_lt hΦpos)]
+    congr 1; ring
+  have hRsq : ((rad (F k n) : ℝ) * (k : ℝ) ^ k) ^ 2
+      = (rad (F k n) : ℝ) ^ 2 * (k : ℝ) ^ (2 * k) := by
+    rw [mul_pow, ← pow_mul]; ring_nf
+  rw [hLsq, hRsq] at hsq
+  -- Use the crude rad² ≤ Φ:  Φ^{2(g-1)/g} ≤ Φ · k^{2k}.
+  have hk2kpos : (0 : ℝ) < (k : ℝ) ^ (2 * k) := by positivity
+  have hsq2 : Φ ^ (2 * ((g : ℝ) - 1) / (g : ℝ)) ≤ Φ * (k : ℝ) ^ (2 * k) :=
+    le_trans hsq (mul_le_mul_of_nonneg_right hradsq (le_of_lt hk2kpos))
+  -- Divide by Φ:  Φ^{(g-2)/g} ≤ k^{2k}.   (2(g-1)/g = (g-2)/g + 1.)
+  have hexp_id : 2 * ((g : ℝ) - 1) / (g : ℝ) = ((g : ℝ) - 2) / (g : ℝ) + 1 := by
+    field_simp; ring
+  have hΦsplit : Φ ^ (2 * ((g : ℝ) - 1) / (g : ℝ)) = Φ ^ (((g : ℝ) - 2) / (g : ℝ)) * Φ := by
+    rw [hexp_id, Real.rpow_add hΦpos, Real.rpow_one]
+  rw [hΦsplit] at hsq2
+  have hdiv : Φ ^ (((g : ℝ) - 2) / (g : ℝ)) ≤ (k : ℝ) ^ (2 * k) := by
+    have h : Φ ^ (((g : ℝ) - 2) / (g : ℝ)) * Φ ≤ (k : ℝ) ^ (2 * k) * Φ := by
+      rw [mul_comm ((k : ℝ) ^ (2 * k)) Φ]; exact hsq2
+    exact le_of_mul_le_mul_right h hΦpos
+  -- Use Φ ≥ n^k:  (n^k)^{(g-2)/g} ≤ Φ^{(g-2)/g} ≤ k^{2k}.
+  have hnk_nonneg : (0 : ℝ) ≤ (n : ℝ) ^ k := by positivity
+  have hexp_nonneg : (0 : ℝ) ≤ ((g : ℝ) - 2) / (g : ℝ) := by
+    apply div_nonneg (by linarith) (by linarith)
+  have hnpow : ((n : ℝ) ^ k) ^ (((g : ℝ) - 2) / (g : ℝ)) ≤ Φ ^ (((g : ℝ) - 2) / (g : ℝ)) :=
+    Real.rpow_le_rpow hnk_nonneg hFlow hexp_nonneg
+  have hkey : ((n : ℝ) ^ k) ^ (((g : ℝ) - 2) / (g : ℝ)) ≤ (k : ℝ) ^ (2 * k) :=
+    le_trans hnpow hdiv
+  -- Raise to the `g` power (clears the `/g`):  n^{(g-2)k} ≤ (k^{2k})^g = k^{2gk}.
+  have hLHS_nonneg : (0 : ℝ) ≤ ((n : ℝ) ^ k) ^ (((g : ℝ) - 2) / (g : ℝ)) :=
+    Real.rpow_nonneg hnk_nonneg _
+  have hpowg : (((n : ℝ) ^ k) ^ (((g : ℝ) - 2) / (g : ℝ))) ^ g ≤ ((k : ℝ) ^ (2 * k)) ^ g :=
+    pow_le_pow_left₀ hLHS_nonneg hkey g
+  have hnpos : (0 : ℝ) < (n : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero (by omega : n ≠ 0)
+  -- Simplify LHS:  ((n^k)^{(g-2)/g})^g = (n^k)^{(g-2)} = n^{(g-2)k}.
+  have hLHS : (((n : ℝ) ^ k) ^ (((g : ℝ) - 2) / (g : ℝ))) ^ g
+      = (n : ℝ) ^ ((g - 2) * k) := by
+    have hexp : (((g : ℝ) - 2) / (g : ℝ)) * (g : ℝ) = ((g : ℝ) - 2) := by
+      field_simp
+    rw [← Real.rpow_natCast (((n : ℝ) ^ k) ^ (((g : ℝ) - 2) / (g : ℝ))) g,
+      ← Real.rpow_mul hnk_nonneg, hexp]
+    rw [← Real.rpow_natCast (n : ℝ) k, ← Real.rpow_mul (le_of_lt hnpos),
+      ← Real.rpow_natCast (n : ℝ) ((g - 2) * k)]
+    congr 1
+    rw [Nat.cast_mul, Nat.cast_sub (by omega : 2 ≤ g)]
+    push_cast
+    ring
+  -- Simplify RHS:  (k^{2k})^g = k^{2gk}.
+  have hRHS : ((k : ℝ) ^ (2 * k)) ^ g = (k : ℝ) ^ (2 * g * k) := by
+    rw [← pow_mul]; congr 1; ring
+  rw [hLHS, hRHS] at hpowg
+  -- Cast the real inequality `n^{(g-2)k} ≤ k^{2gk}` down to ℕ.
+  have hnat : n ^ ((g - 2) * k) ≤ k ^ (2 * g * k) := by
+    have hcast : ((n ^ ((g - 2) * k) : ℕ) : ℝ) ≤ ((k ^ (2 * g * k) : ℕ) : ℝ) := by
+      push_cast; exact hpowg
+    exact_mod_cast hcast
+  -- Rewrite both as `(·)^k` and drop the common `k`-th power.
+  have hL2 : n ^ ((g - 2) * k) = (n ^ (g - 2)) ^ k := by rw [← pow_mul]
+  have hR2 : k ^ (2 * g * k) = (k ^ (2 * g)) ^ k := by rw [← pow_mul]
+  rw [hL2, hR2] at hnat
+  exact (Nat.pow_le_pow_iff_left hkne).mp hnat
+
+/-- The right-hand side of the crude master inequality: `Mcrude g k = k ^ (2 * g)`, so the exact
+threshold is `Mcrude g k < n ^ (g - 2)`. For example `g = 3` gives `k^6 < n`, while `g = 4` gives
+`k^8 < n^2`, equivalently `k^4 < n`. (Note `Mcrude g k` is the bound on `n^{g-2}`, not on `n` itself
+unless `g = 3`.) -/
+def Mcrude (g k : ℕ) : ℕ := k ^ (2 * g)
+
+/-- **Crude per-`k` non-powerfulness (generic `g`).** Under `BlockRadLBg g`, for `k ≥ g ≥ 3`, if the
+crude threshold is violated — `k ^ (2 * g) < n ^ (g - 2)` — then `F k n` is not powerful. Corollary
+of `master_ineq_crude_g`. -/
+theorem not_powerful_crude_g (g : ℕ) (hBlock : BlockRadLBg g) (hg : 3 ≤ g) {k n : ℕ}
+    (hk : g ≤ k) (hn : 1 ≤ n) (hthr : k ^ (2 * g) < n ^ (g - 2)) : ¬ Powerful (F k n) := by
+  intro hPow
+  have := master_ineq_crude_g g hBlock hg hk hn hPow
+  omega
+
+/-- **Explicit crude per-`k` bound (generic `g`).** A powerful `F k n` (with `k ≥ g ≥ 3`, `n ≥ 1`)
+forces `n ≤ k ^ (2 * g)`. From `n ^ (g - 2) ≤ k ^ (2 * g)` via `g - 2 ≥ 1` and `n ≤ n ^ (g - 2)`. -/
+theorem powerful_bound_crude_g (g : ℕ) (hBlock : BlockRadLBg g) (hg : 3 ≤ g) {k n : ℕ}
+    (hk : g ≤ k) (hn : 1 ≤ n) (hPow : Powerful (F k n)) : n ≤ k ^ (2 * g) := by
+  have hmaster := master_ineq_crude_g g hBlock hg hk hn hPow
+  have hge : n ≤ n ^ (g - 2) := Nat.le_self_pow (by omega) n
+  omega
+
+/-- **Crude per-fixed-`k` finiteness (generic `g`).** For `k ≥ g ≥ 3`, under `BlockRadLBg g` ALONE,
+the set of `n ≥ 1` with `F k n` powerful is **finite**: every such `n` satisfies `n ≤ k ^ (2 * g)`.
+The crude analogue of `g_finiteness`, with a fully explicit threshold. -/
+theorem crude_g_finiteness (g : ℕ) (hBlock : BlockRadLBg g) (hg : 3 ≤ g) {k : ℕ} (hk : g ≤ k) :
+    {n : ℕ | 1 ≤ n ∧ Powerful (F k n)}.Finite := by
+  apply Set.Finite.subset (Set.finite_Iic (k ^ (2 * g)))
+  intro n hn
+  simp only [Set.mem_setOf_eq] at hn
+  simp only [Set.mem_Iic]
+  exact powerful_bound_crude_g g hBlock hg hk hn.1 hn.2
 
 end  -- noncomputable section
 
