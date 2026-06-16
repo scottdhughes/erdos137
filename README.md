@@ -8,7 +8,15 @@ infinitely many `n` (for `k = 2`, `n(n+1)` is powerful infinitely often). It is 
 
 This repository formalizes the **abc-conditional** finiteness results, in each case isolating the
 genuine abc input as a single explicit hypothesis and proving everything else outright (zero
-`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Six result modules:
+`sorry`, no `native_decide`, only `{propext, Classical.choice, Quot.sound}`). Six result modules.
+
+**Module layering.** `Erdos137/Base.lean` holds the shared `g`-independent foundation (the
+factorization/radical/Legendre helpers, the primorial `P` and Legendre layer `L`, and the smooth-part
+refinement `rad(F)²·L ≤ F·P²`). `Erdos137/BlockFramework.lean` builds the generic `g`-block argument
+on top of it. The two concrete routes below are then **literal instances**: `JointFiniteness` defines
+`B`, `overlap`, `W` as `Bg 3`, `overlapg 3`, `Wg 3`, and `SpliceFiniteness` defines `B5`, `overlap5`,
+`W5` as the `g = 5` instances, with their public lemmas re-derived as thin wrappers of the generic
+theorems (so the triple/quintic proofs live once, in `BlockFramework`/`Base`).
 
 ## `Erdos137/Finiteness.lean` — per-fixed-`k` finiteness (Granville–Langevin route)
 

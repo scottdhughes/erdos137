@@ -1,7 +1,5 @@
 import Erdos137.Finiteness
-import Erdos137.JointFiniteness
-import Erdos137.SmoothRefinement
-import Erdos137.SpliceFiniteness
+import Erdos137.Base
 
 namespace Erdos137
 
@@ -62,12 +60,13 @@ would supply. So this is not a uniform growing-`g` theorem.
   premise, so it does not appear in any axiom footprint.
 
 The shared low-level helpers (`rad_dvd_self`, `factorization_rad`, `rad_dvd_rad_of_dvd`,
-`Ioc_dvd_count`, `Ioc_dvd_le`, `div_le_factorization_factorial`, `pow_le_F`, `le_F`, …) are imported
-and reused verbatim from `JointFiniteness`/`SmoothRefinement`, not re-proved.
+`Ioc_dvd_count`, `Ioc_dvd_le`, `div_le_factorization_factorial`, `pow_le_F`, `le_F`, the smooth
+refinement `smooth_refinement`, `P`, `L`, …) are imported and reused verbatim from `Erdos137.Base`,
+not re-proved.
 
-The instantiation checks at the end (`Bg 3 = B`, `Bg 5 = B5`, `overlapg 3 = overlap`,
-`overlapg 5 = overlap5`, `Wg 3 = W`, `Wg 5 = W5`, `Mg 5 = Msplice`) confirm definitionally that the
-existing concrete code is the `g = 3` and `g = 5` instance of this framework.
+This framework sits ABOVE the concrete `g = 3, 5` modules: `JointFiniteness` defines `B`/`overlap`/`W`
+literally as `Bg 3`/`overlapg 3`/`Wg 3` and `SpliceFiniteness` defines `B5`/`overlap5`/`W5` as the
+`g = 5` instances, with their public lemmas re-derived as thin wrappers of the generic theorems below.
 -/
 
 open scoped BigOperators
@@ -558,16 +557,6 @@ theorem g_finiteness (g : ℕ) (hBlock : BlockRadLBg g) (hg : 3 ≤ g) {k : ℕ}
   simp only [Set.mem_setOf_eq] at hn
   simp only [Set.mem_Iic]
   exact powerful_bound_g g hBlock hg hk hn.1 hn.2
-
-/-! ## PART D — instantiation sanity: the existing `g = 3, 5` code is this framework -/
-
-example (k n : ℕ) : Bg 3 k n = B k n := rfl
-example (k n : ℕ) : Bg 5 k n = B5 k n := rfl
-example (k n p : ℕ) : overlapg 3 k n p = overlap k n p := rfl
-example (k n p : ℕ) : overlapg 5 k n p = overlap5 k n p := rfl
-example (k n : ℕ) : Wg 3 k n = W k n := rfl
-example (k n : ℕ) : Wg 5 k n = W5 k n := rfl
-example (k : ℕ) : Mg 5 k = Msplice k := by simp [Mg, Msplice]
 
 end  -- noncomputable section
 
